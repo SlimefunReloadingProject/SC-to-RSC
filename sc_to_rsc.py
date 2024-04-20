@@ -458,25 +458,39 @@ with open('translated/geo_resources.yml', 'w', encoding='utf-8') as f1:
             else:
                 copyto('item.material_type', 'item-type', {'CUSTOM': 'mc', 'SAVEDITEM': 'saveditem'})
                 copyto('item.material', 'item-id')
-
             copyto('max_deviation', 'max-deviation')
             copyto('geo_name', 'item-name')
             new['recipe_type'] = 'GEO_MINER'
             new['obtain_from_geo_miner'] = True
             new['supply'] = {}
-            biomes = data.get('biome', null)
-            new['supply']['world'] = {}
+            new['supply']['normal'] = {}
             new['supply']['nether'] = {}
             new['supply']['the_end'] = {}
+            biomes = data.get('biome', null)
             if biomes != null:
-                new['supply']['world'] = biomes
+                new['supply']['normal'] = biomes
                 new['supply']['nether'] = biomes
                 new['supply']['the_end'] = biomes
             envs = data.get('environment', null)
             if envs != null:
-                new['supply']['world']['others'] = envs.get('NORMAL', 0)
-                new['supply']['nether']['others'] = envs.get('NETHER', 0)
-                new['supply']['the_end']['others'] = envs.get('THE_END', 0)
+                if new['supply']['normal'] == {}:
+                    new['supply']['normal'] = envs.get('NORMAL', 0)
+                else:
+                    new['supply']['normal']['others'] = envs.get('NORMAL', 0)
+                if new['supply']['nether'] == {}:
+                    new['supply']['nether'] = envs.get('NETHER', 0)
+                else:
+                    new['supply']['nether']['others'] = envs.get('NETHER', 0)
+                if new['supply']['the_end'] == {}:
+                    new['supply']['the_end'] = envs.get('THE_END', 0)
+                else:
+                    new['supply']['the_end']['others'] = envs.get('THE_END', 0)
+            if new['supply']['normal'] == {}:
+                new['supply']['normal'] = 0
+            if new['supply']['nether'] == {}:
+                new['supply']['nether'] = 0
+            if new['supply']['the_end'] == {}:
+                new['supply']['the_end'] = 0
             dump(f1, items)
 with open('translated/items.yml', 'w', encoding='utf-8') as f1:
     with open('items.yml', 'r', encoding='utf-8') as f2:
@@ -572,7 +586,7 @@ with open('translated/generators.yml', 'w', encoding='utf-8') as f1:
                 'progress': data['progress-bar-item']
             })
             new = items[key] = {}
-            new['lateInit'] = False
+            new['lateInit'] = True
             copyGroup()
             copyName('generator-name')
             copyLore('generator-lore')
@@ -598,7 +612,7 @@ with open('translated/solar_generators.yml', 'w', encoding='utf-8') as f1:
             items = {}
             data = d[key]
             new = items[key] = {}
-            new['lateInit'] = False
+            new['lateInit'] = True
             copyGroup()
             copyName('generator-name')
             copyLore('generator-lore')
@@ -630,7 +644,7 @@ with open('translated/mat_generators.yml', 'w', encoding='utf-8') as f1:
                 'name': data['item-name']
             })
             new = items[key] = {}
-            new['lateInit'] = False
+            new['lateInit'] = True
             copyGroup()
             copyName()
             copyLore()
@@ -660,7 +674,7 @@ with open('translated/researches.yml', 'w', encoding='utf-8') as f1:
             items = {}
             data = d[key]
             new = items[key] = {}
-            new['lateInit'] = False
+            new['lateInit'] = True
             copyto('id', 'id')
             copyto('name', 'name')
             copyto('levelCost', 'cost')
