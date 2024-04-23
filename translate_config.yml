@@ -1,0 +1,58 @@
+# 请注意：已有的参数的名字不能修改或删除！
+
+# 转换后输出到哪个文件夹
+outputFolder: "translated"
+menus:
+  sections:
+    # 仅可修改 BIO 后的物品，已有参数的名字不可修改！
+    B: gray_stained_glass_pane # 背景
+    I: blue_stained_glass_pane # 输入槽背景
+    O: orange_stained_glass_pane  # 输出槽背景
+    # NPio的值不可被其他自定义键复用
+    N: continue  # 跳过当前槽
+    P: progress  # 进度条
+    i: input  # 输入槽位
+    o: output # 输出槽位
+
+    # 可自定义其他的，不要与上面的重复
+    # 详见 rsc-wiki.通用物品格式
+    # a:
+    #   name: '&a'
+    #   material_type: mc
+    #   material: BEDROCK
+    #   modelId: 114514
+    #   glow: false
+    #   lore:
+    #     - 第1行
+    #     - 第114514行
+    # b: this_is_a_mc_item
+    # c:
+    #   material_type: skull_hash
+    #   material: this_is_skull_hash
+
+  # 机器菜单
+  machines:
+    title: "%name%"  # %name% 自动转为机器名称
+    slots:
+      - "BBBBBBBBB"
+      - "IIIIBOOOO"
+      - "IiiIPOooO"
+      - "IIIIBOOOO"
+      - "BBBBBBBBB"
+  # 发电机菜单
+  generators:
+    title: "%name%"  # %name% 自动转为发电机名称
+    slots:
+      - "BBBBBBBBB"
+      - "IIIIBOOOO"
+      - "IiiIPOooO"
+      - "IIIIBOOOO"
+      - "BBBBBBBBB"
+  # 材料生成器菜单
+  material-generators:
+    title: "%name%"  # %name% 自动转为材料生成器名称
+    slots:
+      - "POooooooO"
+lores:
+  # 是否完全复制 SlimeCutomizer 的格式
+  full-copy-slimecustomizer: true

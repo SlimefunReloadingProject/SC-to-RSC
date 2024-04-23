@@ -6,8 +6,7 @@ import yaml
 
 from time import time
 
-version = '1.0REALEASE'
-
+version = '1.1SHOT'
 
 class color:
     # Text color
@@ -35,6 +34,10 @@ class color:
     bwhite = '\33[49m'
 
 
+def error(string):
+    print(f'{color.red}{string}')
+
+
 def getYamlContext(file):
     try:
         result = yaml.load(file, Loader=yaml.FullLoader)
@@ -42,10 +45,10 @@ def getYamlContext(file):
             return {}
         return result
     except FileNotFoundError:
-        print(f'{color.red}{file}未找到')
+        error(f'文件 {file} 未找到')
         return {}
     except PermissionError:
-        print(f'{color.red}无权限')
+        error(f'无权限打开文件 {file}')
         return {}
 
 
@@ -168,7 +171,7 @@ def custom_sort(x):
     try: 
         return order.index(x[0])
     except ValueError:
-        print(x[0])
+        error(f'未知键: {x[0]}')
         return len(order)
 
 
@@ -187,30 +190,118 @@ def dump(file, item):
 start = time()
 menus = {'machines': [], 'generators': [], 'material-generators': []}
 itemtype = {'VANILLA': 'mc', 'SLIMEFUN': 'slimefun', 'NONE': 'none', 'SAVEDITEM': 'saveditem'}
-null = 'NOT_FOUND'
+null = '__NOT_FOUND_SC_TO_RSC'
 
 
-folders = ("translated", "translated/saveditems", "translated/scripts")
+class config:
+
+    class menus:
+
+        class sections:
+            pass
+
+        class machines:
+            slots = {}
+            inputSlots = []
+            outputSlots = []
+            progressSlot = 22
+
+        class generators:
+            slots = {}
+            inputSlots = []
+            outputSlots = []
+            progressSlot = 22
+
+        class material_generators:
+            slots = {}
+            outputSlots = []
+            progressSlot = 0
+
+    class lores:
+        full_copy_slimecustomizer = False
+
+
+def encode(item):
+    slot = getattr(config.menus.sections, item)
+    if isinstance(slot, str):
+        if slot == 'progress':
+            return {'progressbar': True}
+        return {'material': slot}
+    return slot
+
+
+def readslot(slots, dt):
+    current_slot = 0
+    current_item = slots[0][0]
+    length = len(slots)
+    for line in range(length):
+        for pos in range(9):
+            apos = line*9+pos
+            item = slots[line][pos]
+            if item == 'i' and dt != 'material_generators':
+                getattr(config.menus, dt).inputSlots.append(apos)
+            elif item == 'o':
+                getattr(config.menus, dt).outputSlots.append(apos)
+            elif item == 'P':
+                getattr(config.menus, dt).progressSlot = apos
+            if item != current_item:
+                if apos-1 == current_slot:
+                    p = current_slot
+                else:
+                    p = f'{current_slot}-{apos-1}'
+                if current_item not in 'ioN':
+                    if dt != 'material_generators' or (dt == 'material_generators' and current_item != 'P'):
+                        getattr(config.menus, dt).slots[p] = encode(current_item)
+                current_slot = apos
+                current_item = item
+    if apos == current_slot:
+        p = current_slot
+    else:
+        p = f'{current_slot}-{apos}'
+    if current_item not in 'ioN':
+        getattr(config.menus, dt).slots[p] = encode(current_item)
+
+
+with open('translate_config.yml', 'r', encoding='utf-8') as f:
+    c = getYamlContext(f)
+    config.outputFolder = c['outputFolder']
+    menu = c['menus']
+    for section, value in menu['sections'].items():
+        setattr(config.menus.sections, section, value)
+    config.menus.machines.title = menu['machines']['title']
+    config.menus.generators.title = menu['generators']['title']
+    config.menus.material_generators.title = menu['material-generators']['title']
+    readslot(menu['machines']['slots'], 'machines')
+    readslot(menu['generators']['slots'], 'generators')
+    readslot(menu['material-generators']['slots'], 'material_generators')
+    config.lores.full_copy_slimecustomizer = c['lores']['full-copy-slimecustomizer']
+    if config.lores.full_copy_slimecustomizer:
+        print(f'{color.cyan} 您已开启完全复制 SlimeCustomizer. 在修改您的配置的时候请注意 lore 是否需要修改！')
+
+folders = (f"{config.outputFolder}", f"{config.outputFolder}/saveditems", f"{config.outputFolder}/scripts")
 for folder in folders:
     try:
         os.mkdir(folder)
     except FileExistsError:
-        1
+        pass
 
-saveditems_path = "saveditems"
-
-for file_name in os.listdir(saveditems_path):
-    file_path = os.path.join(saveditems_path, file_name)
+for file_name in os.listdir("saveditems"):
+    file_path = os.path.join("saveditems", file_name)
     if os.path.isfile(file_path):
-        shutil.copy(file_path, "translated/saveditems")
+        shutil.copy(file_path, f"{config.outputFolder}/saveditems")
 
-with open('translated/machines.yml', 'w', encoding='utf-8') as f: f.write('\n')
-with open('translated/simple_machines.yml', 'w', encoding='utf-8') as f: f.write('\n')
-with open('translated/mb_machines.yml', 'w', encoding='utf-8') as f: f.write('\n')
-with open('translated/armors.yml', 'w', encoding='utf-8') as f: f.write('\n')
-with open('translated/recipe_types.yml', 'w', encoding='utf-8') as f: f.write('\n')
+with open(f'{config.outputFolder}/machines.yml', 'w', encoding='utf-8') as f:
+    f.write('\n')
+with open(f'{config.outputFolder}/simple_machines.yml', 'w', encoding='utf-8') as f:
+    f.write('\n')
+with open(f'{config.outputFolder}/mb_machines.yml', 'w', encoding='utf-8') as f:
+    f.write('\n')
+with open(f'{config.outputFolder}/armors.yml', 'w', encoding='utf-8') as f:
+    f.write('\n')
+with open(f'{config.outputFolder}/recipe_types.yml', 'w', encoding='utf-8') as f:
+    f.write('\n')
 
-with open('translated/info.yml', 'w', encoding='utf-8') as f1:
+with open(f'{config.outputFolder}/info.yml', 'w', encoding='utf-8') as f1:
     with open('sc-addon.yml', 'r', encoding='utf-8') as f2:
         parser = argparse.ArgumentParser()
         parser.add_argument('--id', type=str, required=False)
@@ -286,7 +377,7 @@ def replaceColor(item):
     for char, charv in chars.items():
         while True:
             match = re.search(f'(&|§){char}((?!(&|§)).)*((&|§)(\d|[A-Fa-f]|#))?', item)
-            if match == None:
+            if match is None:
                 break
             match = match.group()
             if match[-1] in '0123456789abcdefABCDEF#':
@@ -317,7 +408,6 @@ def copyLore(key='item-lore'):
     if isinstance(lores, list):
         for lore in lores:
             new_lores.append(replaceColor(lore))
-            #new_lores.append(lore)
     if 'item' not in new:
         new['item'] = {}
     new['item']['lore'] = new_lores
@@ -335,23 +425,24 @@ def copyRecipe():
 def copyRecipes(isGenerator=False):
     for dkey in data['recipes']:
         if not isGenerator:
+            recipe = data['recipes'][dkey]
             copyto(f'recipes.\"{dkey}\".seconds', f'recipes.{dkey}.speed-in-seconds', {0: 1})
-            mt = data['recipes'][dkey]['input']['1']['type']
+            mt = recipe['input']['1']['type'] if '1' in recipe['input'] else recipe['input'][1]['type']
             if mt != 'NONE':
                 copyto(f'recipes.\"{dkey}\".input.1.material_type', f'recipes.{dkey}.input.1.type', itemtype)
                 copyto(f'recipes.\"{dkey}\".input.1.material', f'recipes.{dkey}.input.1.id')
                 copyto(f'recipes.\"{dkey}\".input.1.amount', f'recipes.{dkey}.input.1.amount')
-            mt = data['recipes'][dkey]['output']['1']['type']
+            mt = data['recipes'][dkey]['output']['1']['type'] if '1' in recipe['output'] else recipe['output'][1]['type']
             if mt != 'NONE':
                 copyto(f'recipes.\"{dkey}\".output.1.material_type', f'recipes.{dkey}.output.1.type', itemtype)
                 copyto(f'recipes.\"{dkey}\".output.1.material', f'recipes.{dkey}.output.1.id')
                 copyto(f'recipes.\"{dkey}\".output.1.amount', f'recipes.{dkey}.output.1.amount')
-            mt = data['recipes'][dkey]['input']['2']['type']
+            mt = data['recipes'][dkey]['input']['2']['type'] if '2' in recipe['input'] else recipe['input'][2]['type']
             if mt != 'NONE':
                 copyto(f'recipes.\"{dkey}\".input.2.material_type', f'recipes.{dkey}.input.2.type', itemtype)
                 copyto(f'recipes.\"{dkey}\".input.2.material', f'recipes.{dkey}.input.2.id')
                 copyto(f'recipes.\"{dkey}\".input.2.amount', f'recipes.{dkey}.input.2.amount')
-            mt = data['recipes'][dkey]['output']['2']['type']
+            mt = data['recipes'][dkey]['output']['2']['type'] if '2' in recipe['output'] else recipe['output'][2]['type']
             if mt != 'NONE':
                 copyto(f'recipes.\"{dkey}\".output.2.material_type', f'recipes.{dkey}.output.2.type', itemtype)
                 copyto(f'recipes.\"{dkey}\".output.2.material', f'recipes.{dkey}.output.2.id')
@@ -378,7 +469,7 @@ def copyGroup():
         new['item_group'] = 'rsc_'+cat
 
 
-with open('translated/groups.yml', 'w', encoding='utf-8') as f1:
+with open(f'{config.outputFolder}/groups.yml', 'w', encoding='utf-8') as f1:
     with open('categories.yml', 'r', encoding='utf-8') as f2:
         d = getYamlContext(f2)
         for key in d:
@@ -417,7 +508,7 @@ with open('translated/groups.yml', 'w', encoding='utf-8') as f1:
             dump(f1, items)
 
 
-with open('translated/mob_drops.yml', 'w', encoding='utf-8') as f1:
+with open(f'{config.outputFolder}/mob_drops.yml', 'w', encoding='utf-8') as f1:
     with open('mob-drops.yml', 'r', encoding='utf-8') as f2:
         d = getYamlContext(f2)
         for key in d:
@@ -437,11 +528,11 @@ with open('translated/mob_drops.yml', 'w', encoding='utf-8') as f1:
             copyto('item.amount', 'item-amount')
 
             copyto('entity', 'mob')
-            copyto('chance', 'chance', {0: 1})
+            copyto('chance', 'chance')
             dump(f1, items)
 
 
-with open('translated/geo_resources.yml', 'w', encoding='utf-8') as f1:
+with open(f'{config.outputFolder}/geo_resources.yml', 'w', encoding='utf-8') as f1:
     with open('geo-resources.yml', 'r', encoding='utf-8') as f2:
         d = getYamlContext(f2)
         for key in d:
@@ -492,7 +583,7 @@ with open('translated/geo_resources.yml', 'w', encoding='utf-8') as f1:
             if new['supply']['the_end'] == {}:
                 new['supply']['the_end'] = 0
             dump(f1, items)
-with open('translated/items.yml', 'w', encoding='utf-8') as f1:
+with open(f'{config.outputFolder}/items.yml', 'w', encoding='utf-8') as f1:
     with open('items.yml', 'r', encoding='utf-8') as f2:
         d = getYamlContext(f2)
         for key in d:
@@ -516,7 +607,7 @@ with open('translated/items.yml', 'w', encoding='utf-8') as f1:
             copyRecipe()
             dump(f1, items)
 
-with open('translated/capacitors.yml', 'w', encoding='utf-8') as f1:
+with open(f'{config.outputFolder}/capacitors.yml', 'w', encoding='utf-8') as f1:
     with open('capacitors.yml', 'r', encoding='utf-8') as f2:
         d = getYamlContext(f2)
         for key in d:
@@ -527,6 +618,12 @@ with open('translated/capacitors.yml', 'w', encoding='utf-8') as f1:
             copyGroup()
             copyName('capacitor-name')
             copyLore('capacitor-lore')
+            if config.lores.full_copy_slimecustomizer:
+                new['item']['lore'] = new['item']['lore']+[
+                    "",
+                    "&e电容",
+                    f"&8⇨ &e⚡&7 {data['capacity']} J 可存储",
+                ]
             if data['block-type'].startswith('SKULL'):
                 new['item']['material_type'] = 'skull_hash'
                 new['item']['material'] = data['block-type'][5:]
@@ -542,7 +639,9 @@ with open('translated/capacitors.yml', 'w', encoding='utf-8') as f1:
             copyRecipe()
             dump(f1, items)
 
-with open('translated/recipe_machines.yml', 'w', encoding='utf-8') as f1:
+with open(f'{config.outputFolder}/recipe_machines.yml', 'w', encoding='utf-8') as f1:
+    inputSlots = config.menus.machines.inputSlots
+    outputSlots = config.menus.machines.outputSlots
     with open('machines.yml', 'r', encoding='utf-8') as f2:
         d = getYamlContext(f2)
         for key in d:
@@ -558,14 +657,21 @@ with open('translated/recipe_machines.yml', 'w', encoding='utf-8') as f1:
             copyGroup()
             copyName('machine-name')
             copyLore('machine-lore')
+            if config.lores.full_copy_slimecustomizer:
+                new['item']['lore'] = new['item']['lore']+[
+                    "",
+                    "&b机器",
+                    f"&8⇨ &e⚡&7 {data['stats']['energy-buffer']} J 可存储",
+                    f"&8⇨ &e⚡&7 {data['stats']['energy-consumption']*2} J/s",
+                ]
             if data['block-type'].startswith('SKULL'):
                 new['item']['material_type'] = 'skull_hash'
                 new['item']['material'] = data['block-type'][5:]
             else:
                 copyto('item.material', 'block-type')
 
-            new['input'] = [19, 20]
-            new['output'] = [24, 25]
+            new['input'] = inputSlots
+            new['output'] = outputSlots
             new['speed'] = 1
             copyto('recipe_type', 'crafting-recipe-type', {"NONE": "NULL"})
             copyRecipe()
@@ -574,7 +680,9 @@ with open('translated/recipe_machines.yml', 'w', encoding='utf-8') as f1:
             copyRecipes()
             dump(f1, items)
 
-with open('translated/generators.yml', 'w', encoding='utf-8') as f1:
+with open(f'{config.outputFolder}/generators.yml', 'w', encoding='utf-8') as f1:
+    inputSlots = config.menus.machines.inputSlots
+    outputSlots = config.menus.machines.outputSlots
     with open('generators.yml', 'r', encoding='utf-8') as f2:
         d = getYamlContext(f2)
         for key in d:
@@ -590,14 +698,21 @@ with open('translated/generators.yml', 'w', encoding='utf-8') as f1:
             copyGroup()
             copyName('generator-name')
             copyLore('generator-lore')
+            if config.lores.full_copy_slimecustomizer:
+                new['item']['lore'] = new['item']['lore']+[
+                    "",
+                    "&a发电机",
+                    f"&8⇨ &e⚡&7 {data['stats']['energy-buffer']} J 可存储",
+                    f"&8⇨ &e⚡&7 {data['stats']['energy-production']*2} J/s",
+                ]
             if data['block-type'].startswith('SKULL'):
                 new['item']['material_type'] = 'skull_hash'
                 new['item']['material'] = data['block-type'][5:]
             else:
                 copyto('item.material', 'block-type')
 
-            new['input'] = [19, 20]
-            new['output'] = [24, 25]
+            new['input'] = inputSlots
+            new['output'] = outputSlots
             copyto('recipe_type', 'crafting-recipe-type', {"NONE": "NULL"})
             copyRecipe()
             copyto('capacity', 'stats.energy-buffer')
@@ -605,7 +720,7 @@ with open('translated/generators.yml', 'w', encoding='utf-8') as f1:
             copyRecipes(isGenerator=True)
             dump(f1, items)
 
-with open('translated/solar_generators.yml', 'w', encoding='utf-8') as f1:
+with open(f'{config.outputFolder}/solar_generators.yml', 'w', encoding='utf-8') as f1:
     with open('solar-generators.yml', 'r', encoding='utf-8') as f2:
         d = getYamlContext(f2)
         for key in d:
@@ -616,6 +731,13 @@ with open('translated/solar_generators.yml', 'w', encoding='utf-8') as f1:
             copyGroup()
             copyName('generator-name')
             copyLore('generator-lore')
+            if config.lores.full_copy_slimecustomizer:
+                new['item']['lore'] = new['item']['lore']+[
+                    "",
+                    "&e太阳能发电机",
+                    f"&8⇨ &e⚡&7 {data['stats']['energy-production']['day']*2} J/s (昼)",
+                    f"&8⇨ &e⚡&7 {data['stats']['energy-production']['night']*2} J/s (夜)",
+                ]
             if data['block-type'].startswith('SKULL'):
                 new['item']['material_type'] = 'skull_hash'
                 new['item']['material'] = data['block-type'][5:]
@@ -633,9 +755,11 @@ with open('translated/solar_generators.yml', 'w', encoding='utf-8') as f1:
 
             dump(f1, items)
 
-with open('translated/mat_generators.yml', 'w', encoding='utf-8') as f1:
+with open(f'{config.outputFolder}/mat_generators.yml', 'w', encoding='utf-8') as f1:
     with open('material-generators.yml', 'r', encoding='utf-8') as f2:
         d = getYamlContext(f2)
+        outputSlots = config.menus.material_generators.outputSlots
+        progressSlot = config.menus.material_generators.progressSlot
         for key in d:
             items = {}
             data = d[key]
@@ -648,6 +772,14 @@ with open('translated/mat_generators.yml', 'w', encoding='utf-8') as f1:
             copyGroup()
             copyName()
             copyLore()
+            if config.lores.full_copy_slimecustomizer:
+                new['item']['lore'] = new['item']['lore']+[
+                    "",
+                    "&e材料生成器",
+                    f"&8⇨ &7速度: &b每 {data['output']['tick-rate']} 粘液刻生成一次",
+                    f"&8⇨ &e⚡&7 {data['stats']['energy-buffer']} J 可存储",
+                    f"&8⇨ &e⚡&7 {data['stats']['energy-consumption']*2} J/s",
+                ]
             if data['block-type'].startswith('SKULL'):
                 new['item']['material_type'] = 'skull_hash'
                 new['item']['material'] = data['block-type'][5:]
@@ -659,15 +791,15 @@ with open('translated/mat_generators.yml', 'w', encoding='utf-8') as f1:
             copyto('item.amount', 'item-amount')
             copyto('recipe_type', 'crafting-recipe-type', {"NONE": "NULL"})
             copyRecipe()
-            new['output'] = [2, 3, 4, 5, 6, 7]
-            new['status'] = 0
+            new['output'] = outputSlots
+            new['status'] = progressSlot
             copyto('tickRate', 'output.tick-rate')
             copyto('outputItem.material_type', 'output.type', itemtype)
             copyto('outputItem.material', 'output.id')
             copyto('outputItem.amount', 'output.amount')
             dump(f1, items)
 
-with open('translated/researches.yml', 'w', encoding='utf-8') as f1:
+with open(f'{config.outputFolder}/researches.yml', 'w', encoding='utf-8') as f1:
     with open('researches.yml', 'r', encoding='utf-8') as f2:
         d = getYamlContext(f2)
         for key in d:
@@ -681,85 +813,39 @@ with open('translated/researches.yml', 'w', encoding='utf-8') as f1:
             copyto('items', 'items')
             dump(f1, items)
 
-with open('translated/menus.yml', 'w', encoding='utf-8') as f1:
+
+with open(f'{config.outputFolder}/menus.yml', 'w', encoding='utf-8') as f1:
     items = {}
-    for menu in menus['machines']+menus['generators']:
+    progressSlot = config.menus.machines.progressSlot
+    for menu in menus['machines']:
+        items = {}
         iden = menu['iden']
         name = menu['name']
         progress_item = menu['progress']
         items[iden] = {
-            "title": name,
-            "slots": {
-                "0-8": {
-                    "name": "&a",
-                    "material": "GRAY_STAINED_GLASS_PANE"
-                },
-                "9-12": {
-                    "name": "&a",
-                    "material": "BLUE_STAINED_GLASS_PANE"
-                },
-                13: {
-                    "name": "&a",
-                    "material": "GRAY_STAINED_GLASS_PANE"
-                },
-                "14-17": {
-                    "name": "&a",
-                    "material": "ORANGE_STAINED_GLASS_PANE"
-                },
-                18: {
-                    "name": "&a",
-                    "material": "BLUE_STAINED_GLASS_PANE"
-                },
-                21: {
-                    "name": "&a",
-                    "material": "BLUE_STAINED_GLASS_PANE"
-                },
-                22: {
-                    "name": "&a",
-                    "material": progress_item,
-                    "progessbar": True
-                },
-                23: {
-                    "name": "&a",
-                    "material": "ORANGE_STAINED_GLASS_PANE"
-                },
-                26: {
-                    "name": "&a",
-                    "material": "ORANGE_STAINED_GLASS_PANE"
-                },
-                "27-30": {
-                    "name": "&a",
-                    "material": "BLUE_STAINED_GLASS_PANE"
-                },
-                31: {
-                    "name": "&a",
-                    "material": "GRAY_STAINED_GLASS_PANE"
-                },
-                "32-35": {
-                    "name": "&a",
-                    "material": "ORANGE_STAINED_GLASS_PANE"
-                },
-                "36-44": {
-                    "name": "&a",
-                    "material": "GRAY_STAINED_GLASS_PANE"
-                }
+            "title": config.menus.machines.title.replace('%name%', name),
+            "slots": config.menus.machines.slots
             }
-        }
+        items[iden]['slots'][progressSlot]['material'] = progress_item
+        dump(f1, items)
+    for menu in menus['generators']:
+        items = {}
+        iden = menu['iden']
+        name = menu['name']
+        progress_item = menu['progress']
+        items[iden] = {
+            "title": config.menus.generators.title.replace('%name%', name),
+            "slots": config.menus.generators.slots
+            }
+        items[iden]['slots'][config.menus.generators.progressSlot]['material'] = progress_item
+        dump(f1, items)
     for menu in menus['material-generators']:
+        items = {}
         iden = menu['iden']
         name = menu['name']
         items[iden] = {
-            "title": name,
-            "slots": {
-                1: {
-                    "name": "&a",
-                    "material": "ORANGE_STAINED_GLASS_PANE"
-                },
-                8: {
-                    "name": "&a",
-                    "material": "ORANGE_STAINED_GLASS_PANE"
-                }
-            }
+            "title": config.menus.material_generators.title.replace('%name%', name),
+            "slots": config.menus.material_generators.slots
         }
-    dump(f1, items)
+        dump(f1, items)
 print(f"{color.green}Spent {time()-start}")
