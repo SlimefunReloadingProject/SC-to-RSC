@@ -3,7 +3,7 @@
 #### 前提条件：配置能用SC加载
 #### 符合条件才能转为RSC
 
-一个用于快速检查`Slimefun`附属插件`RykenSlimeCustomizer`配置的脚本  
+一个用于将`Slimefun`附属插件`SlimeCustomizer`的配置转为`RykenSlimeCustomizer`配置的脚本  
 作者：`balugaq`
 
 # 特别鸣谢
