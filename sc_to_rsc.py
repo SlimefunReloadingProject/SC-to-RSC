@@ -6,7 +6,7 @@ import yaml
 
 from time import time
 
-VERSION = '1.1REALEASE'
+VERSION = '1.2SHOT'
 
 
 class color:
@@ -62,7 +62,7 @@ class CombinedDumper(yaml.Dumper):
         return True
 
     def represent_list(self, data):
-        return self.represent_sequence('tag:yaml.org,2002:seq', data, flow_style=True)
+        return self.represent_sequence('tag:yaml.org,2002:seq', data)
 
     def represent_mapping(self, tag, mapping, flow_style=None):
         value = []
@@ -214,6 +214,26 @@ class config:
 
     class lores:
         full_copy_slimecustomizer = False
+    
+    class additions:
+        class categories:
+            pass
+        class mob_drops:
+            pass
+        class geo_resources:
+            pass
+        class items:
+            pass
+        class machines:
+            pass
+        class generators:
+            pass
+        class solar_generators:
+            pass
+        class material_generators:
+            pass
+        class researches:
+            pass
 
 
 def encode(item):
@@ -265,7 +285,10 @@ def copyto(new_string, old_string, translate={}):
     new_split = []
     for a in new_split1:
         try:
-            new_split.append(int(a))
+            if a[0] == a[-1] and a[0] in {'\'', '\"'}:
+                new_split.append(a[1:-1])
+            else:
+                new_split.append(int(a))
         except ValueError:
             new_split.append(a)
     old_split = []
@@ -297,13 +320,13 @@ def copyto(new_string, old_string, translate={}):
 
 
 def replaceColor(item):
+    # 能跑就行
     matches = re.findall(r'((&|§)x(((&|§)[0-9A-Fa-f]){6}))', item)
     if matches != []:
         for match in matches:
             code = match[0]
             item = item.replace(code, f'&#{code[3]}{code[5]}{code[7]}{code[9]}{code[11]}{code[13]}&')
 
-    chars = {'n': '__', 'm': '~~', 'k': '??', 'l': '**', 'o': '##'}
     for char, charv in chars.items():
         while True:
             match = re.search(f'(&|§){char}((?!(&|§)).)*((&|§)(\d|[A-Fa-f]|#))?', item)
@@ -700,8 +723,6 @@ def translateMachines():
                 else:
                     copyto('item.material', 'block-type')
 
-                new['input'] = inputSlots
-                new['output'] = outputSlots
                 new['speed'] = 1
                 copyto('recipe_type', 'crafting-recipe-type', {"NONE": "NULL"})
                 copyRecipe()
@@ -709,6 +730,7 @@ def translateMachines():
                 copyto('energyPerCraft', 'stats.energy-consumption')
                 copyRecipes()
                 dump(f1, items)
+                f1.write(f'  input: {inputSlots}\n  output: {outputSlots}\n')
 
 
 def translateGenerators():
@@ -745,14 +767,13 @@ def translateGenerators():
                 else:
                     copyto('item.material', 'block-type')
 
-                new['input'] = inputSlots
-                new['output'] = outputSlots
                 copyto('recipe_type', 'crafting-recipe-type', {"NONE": "NULL"})
                 copyRecipe()
                 copyto('capacity', 'stats.energy-buffer')
                 copyto('production', 'stats.energy-production')
                 copyRecipes(isGenerator=True)
                 dump(f1, items)
+                f1.write(f"  input: {inputSlots}\n  output: {outputSlots}\n")
 
 
 def translateSolarGenerators():
@@ -833,13 +854,13 @@ def translateMaterialGenerators():
                 copyto('item.amount', 'item-amount')
                 copyto('recipe_type', 'crafting-recipe-type', {"NONE": "NULL"})
                 copyRecipe()
-                new['output'] = outputSlots
                 new['status'] = progressSlot
                 copyto('tickRate', 'output.tick-rate')
                 copyto('outputItem.material_type', 'output.type', itemtype)
                 copyto('outputItem.material', 'output.id')
                 copyto('outputItem.amount', 'output.amount')
                 dump(f1, items)
+                f1.write(f"  output: {outputSlots}\n")
 
 
 def translateResearches():
@@ -907,7 +928,9 @@ def CreateFile(file_name, text=''):
 
 menus = {'machines': [], 'generators': [], 'material-generators': []}
 itemtype = {'VANILLA': 'mc', 'SLIMEFUN': 'slimefun', 'NONE': 'none', 'SAVEDITEM': 'saveditem'}
+chars = {'n': '__', 'm': '~~', 'k': '??', 'l': '**', 'o': '##'}
 null = '__NOT_FOUND_SC_TO_RSC'
+
 
 
 def main():
@@ -929,7 +952,7 @@ def main():
             translateMaterialGenerators() if 'material-generators.yml' in yml_files else CreateFile('mat_generators.yml')
             translateResearches() if 'researches.yml' in yml_files else CreateFile('researches.yml')
             print(f'{color.cyan}作为作者，我并不能保证转换出来的文本一定能够使用，因为结果会受到各种因素的影响')
-            print(f'{color.cyan}包括但不限于，原配置错误，规则更新。')
+            print(f'{color.cyan}包括但不限于，原配置错误，规则不一致等。')
         else:
             error('未找到配置文件 translate_config.yml. 请从github补全文件再运行本程序！')
     except BaseException as err:

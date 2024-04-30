@@ -56,3 +56,29 @@ menus:
 lores:
   # 是否完全复制 SlimeCutomizer 的格式
   full-copy-slimecustomizer: true
+# 附加参数（暂未实现）
+additions:
+  categories: # 分类
+    group1: # 分组1
+      override: false # 是否覆盖原已有数据
+      # 当 override: true 时:
+      # 若缓存的转换数据中已有 name: 123 且 config 中包含 name
+      # 则会覆盖原数据中的name，没有这个参数就增加
+      # 对于dict 则对其中每一个参数进行上述检查
+      # 当 override: false 时:
+      # 遇到已有参数则会跳过，没有就增加
+      items: # 适用物品，不存在会跳过
+      - '__example_item'
+      config: # 配置内容
+        register:
+          conditions:
+          - "version >= 1.16"
+    #groups2: {} # 分组2，自定名字
+  mob_drops: {} # 同上格式
+  geo_resources: {}
+  items: {}
+  machines: {}
+  generators: {}
+  solar_generators: {}
+  material_generators: {}
+  researches: {}
