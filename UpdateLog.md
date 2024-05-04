@@ -1,12 +1,28 @@
+# 1.2ALPHA
+
+1. 源代码
+
+  > **适当修改了一些地方的注释**
+
+2. BUG修复
+
+  > **修复了不生成menus.yml文件的bug**
+  > 删除了`sc-to-rsc.exe`
+
+3. 实验性功能
+
+  > 在`translate_config.yml`中增加了`colorMode`, `menus.use-import`参数
+  > 实现了`additions`功能，现在可以自定义额外参数了
+
 # 1.2SHOT
 
-1. 检测更新
+1. 输出格式更新
 
   > **实现了`lore`多行的格式**
 
 2. BUG修复
 
-  > **修复了修改config文件无效的bug**
+  > **修复了修改`translate_config.yml`无效的bug**
 
 3.  ~~画新的大饼~~
 

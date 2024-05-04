@@ -1,14 +1,21 @@
-# 请注意：已有的参数的名字不能修改或删除！
+# 不要删除已有的参数的名字！
 
 # 转换后输出到哪个文件夹
 outputFolder: "translated"
+colorMode: "cmi"
+# vanilla: &#RRGGBB
+# vanilla2: &x&R&R&G&G&B&B
+# cmi: {#RRGGBB}
+# minimessage: <#RRGGBB>
+# minedown: &#RRGGBB&
 menus:
+  use-import: true  # 是否使用import
   sections:
     # 仅可修改 BIO 后的物品，已有参数的名字不可修改！
     B: gray_stained_glass_pane # 背景
     I: blue_stained_glass_pane # 输入槽背景
     O: orange_stained_glass_pane  # 输出槽背景
-    # NPio的值不可被其他自定义键复用
+    # NPio是特殊建，值仅是占位符
     N: continue  # 跳过当前槽
     P: progress  # 进度条
     i: input  # 输入槽位
@@ -56,29 +63,44 @@ menus:
 lores:
   # 是否完全复制 SlimeCutomizer 的格式
   full-copy-slimecustomizer: true
-# 附加参数（暂未实现）
-additions:
-  categories: # 分类
-    group1: # 分组1
-      override: false # 是否覆盖原已有数据
-      # 当 override: true 时:
-      # 若缓存的转换数据中已有 name: 123 且 config 中包含 name
-      # 则会覆盖原数据中的name，没有这个参数就增加
-      # 对于dict 则对其中每一个参数进行上述检查
-      # 当 override: false 时:
-      # 遇到已有参数则会跳过，没有就增加
-      items: # 适用物品，不存在会跳过
-      - '__example_item'
-      config: # 配置内容
-        register:
-          conditions:
-          - "version >= 1.16"
+additions: # 附加参数
+  categories: {} # 分类
+  #categories:
+    #group1: # 分组1
+    #  items: # 适用物品，不存在会跳过
+    #  - '__example_item'
+    #  - '__all__' # 全部内容，不建议使用 
+    #  config: # 配置内容
+    #    register:
+    #      conditions:
+    #      - "version >= 1.16"
     #groups2: {} # 分组2，自定名字
-  mob_drops: {} # 同上格式
+  mob_drops: {} # 生物掉落。同上格式
   geo_resources: {}
   items: {}
+  capacitors: {}
   machines: {}
-  generators: {}
-  solar_generators: {}
-  material_generators: {}
-  researches: {}
+  generators:
+    group1:
+      items:
+      - '__all__'
+      config:
+        lateInit: true
+  solar_generators:
+    group1:
+      items:
+      - '__all__'
+      config:
+        lateInit: true
+  material_generators:
+    group1:
+      items:
+      - '__all__'
+      config:
+        lateInit: true
+  researches:
+    group1:
+      items:
+      - '__all__'
+      config:
+        lateInit: true

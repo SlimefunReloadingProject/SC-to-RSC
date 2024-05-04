@@ -16,10 +16,7 @@
 
 # 使用方式
 
-##### 你可以双击sc_to_rsc.exe直接运行此脚本，而不需要安装 python
-##### 运行结束后将会生成`translated`文件夹，使用方式同下
-
-##### 你也可以按照如下步骤运行此脚本
+### 按照如下步骤运行此脚本
 1. 你的电脑需要安装了`python3.6`或以上
 2. 将全部文件解压到 `plugins/SlimeCustomizer`
 3. 运行`main.bat`或`main.sh`，程序将会生成`translated`文件夹
