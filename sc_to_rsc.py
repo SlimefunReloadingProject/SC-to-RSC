@@ -5,7 +5,7 @@ import yaml
 
 from time import time
 
-VERSION = '1.2ALPHA'
+VERSION = '1.2REALEASE'
 
 
 class color:
@@ -55,7 +55,7 @@ def getYamlContext(file):
 class CombinedDumper(yaml.Dumper):
     def __init__(self, *args, **kwargs):
         super(CombinedDumper, self).__init__(*args, **kwargs)
-        self.sort_keys = lambda x: x  # Override the default sorting behavior
+        self.sort_keys = lambda x: x
 
     def ignore_aliases(self, data):
         return True
@@ -74,9 +74,11 @@ class CombinedDumper(yaml.Dumper):
         for item_key, item_value in mapping:
             node_key = self.represent_data(item_key)
             node_value = self.represent_data(item_value)
-            if not (isinstance(node_key, yaml.ScalarNode) and not node_key.style):
+            if not (isinstance(node_key, yaml.ScalarNode)
+                    and not node_key.style):
                 best_style = False
-            if not (isinstance(node_value, yaml.ScalarNode) and not node_value.style):
+            if not (isinstance(node_value, yaml.ScalarNode)
+                    and not node_value.style):
                 best_style = False
             value.append((node_key, node_value))
         if flow_style is None:
@@ -117,6 +119,9 @@ def custom_sort(x):
         'lore',
         'amount',
         'script',
+        'class',
+        'args',
+        'field',
         'recipe_type',
         'recipe',
         'input',
@@ -161,17 +166,20 @@ def custom_sort(x):
         'status',
         'per',
         'energyPerCraft',
-        'consumption'
+        'consumption',
         'speed',
         'recipes',
         'levelCost',
         'currencyCost',
-        'items'
+        'items',
+        'drop_from',
+        'drop_chance',
+        'drop_amount'
     )
     try:
         return order.index(x[0])
     except ValueError:
-        error(f'未知键: {x[0]}')
+        error(f'Unknown key: {x[0]}')
         return len(order)
 
 
@@ -217,34 +225,44 @@ class config:
     class additions:
 
         class categories:
-            pass
+            all = []
+            mapping = {}
 
         class mob_drops:
-            pass
+            all = []
+            mapping = {}
 
         class geo_resources:
-            pass
+            all = []
+            mapping = {}
 
         class items:
-            pass
+            all = []
+            mapping = {}
 
         class capacitors:
-            pass
+            all = []
+            mapping = {}
 
         class machines:
-            pass
+            all = []
+            mapping = {}
 
         class generators:
-            pass
+            all = []
+            mapping = {}
 
         class solar_generators:
-            pass
+            all = []
+            mapping = {}
 
         class material_generators:
-            pass
+            all = []
+            mapping = {}
 
         class researches:
-            pass
+            all = []
+            mapping = {}
 
 
 def encode(item):
@@ -259,25 +277,27 @@ def encode(item):
 def readslot(slots, dt):
     current_slot = 0
     current_item = slots[0][0]
+    clazz = getattr(config.menus, dt)
     length = len(slots)
     for line in range(length):
         for pos in range(9):
             apos = line*9+pos
             item = slots[line][pos]
             if item == 'i' and dt != 'material_generators':
-                getattr(config.menus, dt).inputSlots.append(apos)
+                clazz.inputSlots.append(apos)
             elif item == 'o':
-                getattr(config.menus, dt).outputSlots.append(apos)
+                clazz.outputSlots.append(apos)
             elif item == 'P':
-                getattr(config.menus, dt).progressSlot = apos
+                clazz.progressSlot = apos
             if item != current_item:
                 if apos-1 == current_slot:
                     p = current_slot
                 else:
                     p = f'{current_slot}-{apos-1}'
                 if current_item not in 'ioN':
-                    if dt != 'material_generators' or (dt == 'material_generators' and current_item != 'P'):
-                        getattr(config.menus, dt).slots[p] = encode(current_item)
+                    if (dt != 'material_generators' 
+                    or (dt == 'material_generators' and current_item != 'P')):
+                        clazz.slots[p] = encode(current_item)
                 current_slot = apos
                 current_item = item
     if apos == current_slot:
@@ -285,7 +305,7 @@ def readslot(slots, dt):
     else:
         p = f'{current_slot}-{apos}'
     if current_item not in 'ioN':
-        getattr(config.menus, dt).slots[p] = encode(current_item)
+        clazz.slots[p] = encode(current_item)
 
 
 def copyto(new_string, old_string, translate={}):
@@ -336,14 +356,16 @@ def replaceColor(item):
     if matches != []:
         for match in matches:
             code = match[0]
-            temp = hex_color_form.format(code[3], code[5], code[7], code[9], code[11], code[13])
+            temp = hex_color_form.format(
+                code[3], code[5], code[7], code[9], code[11], code[13])
             if config.colorMode == 'cmi':
                 temp = '{' + temp + '}'
             item = item.replace(code, temp)
 
     for char in 'lmnok':
         while True:
-            match1 = re.search(f'(&|§){char}((?!(&|§)).)*((&|§)(\d|[A-Fa-f]|#))?', item)
+            match1 = re.search(
+                f'(&|§){char}((?!(&|§)).)*((&|§)(\d|[A-Fa-f]|#))?', item)
             if match1 is None:
                 break
             match2 = match1.group()
@@ -365,9 +387,6 @@ def replaceColor(item):
                 charv = chars2[char]
                 replace_char = match2.replace(f'&{char}', f'{charv}')
                 item = item.replace(match2, replace_char)
-            # 不必理会
-            #elif config.colorMode in {'cmi', 'vanilla2', 'vanilla'}:
-            #    ...
             if replace_char is None:
                 break
     return item
@@ -462,7 +481,6 @@ def ReadConfig():
         menu = c['menus']
         for section, value in menu['sections'].items():
             setattr(config.menus.sections, section, value)
-        config.menus.use_import = menu['use-import']
         config.menus.machines.title = menu['machines']['title']
         config.menus.generators.title = menu['generators']['title']
         config.menus.material_generators.title = menu['material-generators']['title']
@@ -491,6 +509,18 @@ def ReadConfig():
                         if item == '__all__':
                             setattr(p, 'all', True)
                         p.mapping[item] = group_context['config']
+
+
+def loadAdditions(p, items, key):
+    if key in p.mapping:
+        mapping = p.mapping[key]
+    if p.all:
+        mapping = p.mapping['__all__']
+    else:
+        return
+    mk = tuple(mapping.keys())[0]
+    mv = tuple(mapping.values())[0]
+    items[key][mk] = mv
 
 
 def GenerateBase():
@@ -577,20 +607,8 @@ def translateGroups():
                     copyto('tier', 'tier')
                 # additions
                 p = config.additions.categories
-                try:
-                    if key in p.mapping:
-                        mapping = p.mapping[key]
-                    if p.all:
-                        mapping = p.mapping['__all__']
-                    else:
-                        raise RuntimeError()
-                    mk = tuple(mapping.keys())[0]
-                    mv = tuple(mapping.values())[0]
-                    items[key][mk] = mv
-                except RuntimeError:
-                    ...
-                finally:
-                    dump(f1, items)
+                loadAdditions(p, items, key)
+                dump(f1, items)
 
 
 def translateMobDrops():
@@ -619,20 +637,8 @@ def translateMobDrops():
                 copyto('chance', 'chance')
                 # additions
                 p = config.additions.mob_drops
-                try:
-                    if key in p.mapping:
-                        mapping = p.mapping[key]
-                    if p.all:
-                        mapping = p.mapping['__all__']
-                    else:
-                        raise RuntimeError()
-                    mk = tuple(mapping.keys())[0]
-                    mv = tuple(mapping.values())[0]
-                    items[key][mk] = mv
-                except RuntimeError:
-                    ...
-                finally:
-                    dump(f1, items)
+                loadAdditions(p, items, key)
+                dump(f1, items)
 
 
 def translateGeoResources():
@@ -690,20 +696,8 @@ def translateGeoResources():
                     new['supply']['the_end'] = 0
                 # additions
                 p = config.additions.geo_resources
-                try:
-                    if key in p.mapping:
-                        mapping = p.mapping[key]
-                    if p.all:
-                        mapping = p.mapping['__all__']
-                    else:
-                        raise RuntimeError()
-                    mk = tuple(mapping.keys())[0]
-                    mv = tuple(mapping.values())[0]
-                    items[key][mk] = mv
-                except RuntimeError:
-                    ...
-                finally:
-                    dump(f1, items)
+                loadAdditions(p, items, key)
+                dump(f1, items)
 
 
 def translateItems():
@@ -728,25 +722,13 @@ def translateItems():
                     copyto('item.material', 'item-id')
                 copyto('item.amount', 'item-amount')
 
-                copyto('placeable', 'placeable')
+                copyto('placeable', 'placeable', {null: False})
                 copyto('recipe_type', 'crafting-recipe-type', {"NONE": "NULL"})
                 copyRecipe()
                 # additions
                 p = config.additions.items
-                try:
-                    if key in p.mapping:
-                        mapping = p.mapping[key]
-                    if p.all:
-                        mapping = p.mapping['__all__']
-                    else:
-                        raise RuntimeError()
-                    mk = tuple(mapping.keys())[0]
-                    mv = tuple(mapping.values())[0]
-                    items[key][mk] = mv
-                except RuntimeError:
-                    ...
-                finally:
-                    dump(f1, items)
+                loadAdditions(p, items, key)
+                dump(f1, items)
 
 
 def translateCapacitors():
@@ -784,20 +766,8 @@ def translateCapacitors():
                 copyRecipe()
                 # additions
                 p = config.additions.capacitors
-                try:
-                    if key in p.mapping:
-                        mapping = p.mapping[key]
-                    if p.all:
-                        mapping = p.mapping['__all__']
-                    else:
-                        raise RuntimeError()
-                    mk = tuple(mapping.keys())[0]
-                    mv = tuple(mapping.values())[0]
-                    items[key][mk] = mv
-                except RuntimeError:
-                    ...
-                finally:
-                    dump(f1, items)
+                loadAdditions(p, items, key)
+                dump(f1, items)
 
 
 def translateMachines():
@@ -842,20 +812,8 @@ def translateMachines():
                 copyRecipes()
                 # additions
                 p = config.additions.machines
-                try:
-                    if key in p.mapping:
-                        mapping = p.mapping[key]
-                    if p.all:
-                        mapping = p.mapping['__all__']
-                    else:
-                        raise RuntimeError()
-                    mk = tuple(mapping.keys())[0]
-                    mv = tuple(mapping.values())[0]
-                    items[key][mk] = mv
-                except RuntimeError:
-                    ...
-                finally:
-                    dump(f1, items)
+                loadAdditions(p, items, key)
+                dump(f1, items)
                 f1.write(f'  input: {inputSlots}\n  output: {outputSlots}\n')
 
 
@@ -949,20 +907,8 @@ def translateSolarGenerators():
                 new['capacity'] = max(de, ne)
                 # additions
                 p = config.additions.solar_generators
-                try:
-                    if key in p.mapping:
-                        mapping = p.mapping[key]
-                    if p.all:
-                        mapping = p.mapping['__all__']
-                    else:
-                        raise RuntimeError()
-                    mk = tuple(mapping.keys())[0]
-                    mv = tuple(mapping.values())[0]
-                    items[key][mk] = mv
-                except RuntimeError:
-                    ...
-                finally:
-                    dump(f1, items)
+                loadAdditions(p, items, key)
+                dump(f1, items)
 
 
 def translateMaterialGenerators():
@@ -1011,20 +957,8 @@ def translateMaterialGenerators():
                 copyto('outputItem.amount', 'output.amount')
                 # additions
                 p = config.additions.material_generators
-                try:
-                    if key in p.mapping:
-                        mapping = p.mapping[key]
-                    if p.all:
-                        mapping = p.mapping['__all__']
-                    else:
-                        raise RuntimeError()
-                    mk = tuple(mapping.keys())[0]
-                    mv = tuple(mapping.values())[0]
-                    items[key][mk] = mv
-                except RuntimeError:
-                    ...
-                finally:
-                    dump(f1, items)
+                loadAdditions(p, items, key)
+                dump(f1, items)
                 f1.write(f"  output: {outputSlots}\n")
 
 
@@ -1045,20 +979,8 @@ def translateResearches():
                 copyto('items', 'items')
                 # additions
                 p = config.additions.researches
-                try:
-                    if key in p.mapping:
-                        mapping = p.mapping[key]
-                    if p.all:
-                        mapping = p.mapping['__all__']
-                    else:
-                        raise RuntimeError()
-                    mk = tuple(mapping.keys())[0]
-                    mv = tuple(mapping.values())[0]
-                    items[key][mk] = mv
-                except RuntimeError:
-                    ...
-                finally:
-                    dump(f1, items)
+                loadAdditions(p, items, key)
+                dump(f1, items)
 
 
 def translateMenus():
@@ -1066,11 +988,6 @@ def translateMenus():
     with open(f'{config.outputFolder}/menus.yml', 'w', encoding='utf-8') as f1:
         print(f'{color.cyan}Generating meuns.yml')
         items = {}
-        if config.menus.use_import:
-            items['__SC_TO_RSC_MATERIAL_GENERATOR_BASE_MENU'] = {
-                "slots": config.menus.material_generators.slots
-            }
-            dump(f1, items)
         progressSlot = config.menus.machines.progressSlot
         for menu in menus['machines']:
             items = {}
@@ -1099,16 +1016,10 @@ def translateMenus():
             items = {}
             iden = menu['iden']
             name = menu['name']
-            if config.menus.use_import:
-                items[iden] = {
-                    "title": replaceColor(config.menus.material_generators.title.replace('%name%', name)),
-                    "import": '__SC_TO_RSC_MATERIAL_GENERATOR_BASE_MENU'
-                }
-            else:
-                items[iden] = {
-                    "title": replaceColor(config.menus.material_generators.title.replace('%name%', name)),
-                    "slots": config.menus.material_generators.slots
-                }
+            items[iden] = {
+                "title": replaceColor(config.menus.material_generators.title.replace('%name%', name)),
+                "slots": config.menus.material_generators.slots
+            }
             dump(f1, items)
 
 
@@ -1132,7 +1043,6 @@ def main():
         if 'translate_config.yml' in yml_files:
             ReadConfig()
             GenerateBase()
-            print(config.menus.use_import)
             translateInfo() if 'sc-addon.yml' in yml_files else CreateFile('info.yml', {'id': "RSC_SlimefunExpansion", 'name': "Unknown addon", 'depends': [], 'pluginDepends': [], 'version': "1.0 SNAPSHOT", 'description': 'No description', 'authors': [""], 'repo': ''})
             translateGroups() if 'categories.yml' in yml_files else CreateFile('groups.yml')
             translateMobDrops() if 'mob-drops.yml' in yml_files else CreateFile('mob_drops.yml')

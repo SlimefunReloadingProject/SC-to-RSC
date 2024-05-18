@@ -1,3 +1,17 @@
+# 1.2REALEASE
+
+1. 源代码
+
+  > 提高**复用**
+
+2. BUG修复
+
+  > **删除**了 `use-import`
+
+3. 调整
+
+  > 去除了默认的`translate_config`的`additions.researches`的额外参数
+
 # 1.2ALPHA
 
 1. 源代码
@@ -7,7 +21,7 @@
 2. BUG修复
 
   > **修复了不生成menus.yml文件的bug**
-  > 删除了`sc-to-rsc.exe`
+  > **删除**了`sc-to-rsc.exe`
 
 3. 实验性功能
 

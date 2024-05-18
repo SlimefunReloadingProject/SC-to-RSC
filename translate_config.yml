@@ -98,9 +98,4 @@ additions: # 附加参数
       - '__all__'
       config:
         lateInit: true
-  researches:
-    group1:
-      items:
-      - '__all__'
-      config:
-        lateInit: true
+  researches: {}
