@@ -2,24 +2,35 @@
 
 # 转换后输出到哪个文件夹
 outputFolder: "translated"
+
 colorMode: "cmi"
 # vanilla: &#RRGGBB
 # vanilla2: &x&R&R&G&G&B&B
 # cmi: {#RRGGBB}
 # minimessage: <#RRGGBB>
 # minedown: &#RRGGBB&
+
+# 物品组处理方式
+groupMode: "prefix"
+# 示例:       item_group: example
+# prefix:     item_group: rsc_example
+# namespace:  item_group: rykenslimecustomizer:example
+# none:       item_group: example
+
 menus:
-  use-import: true  # 是否使用import
   sections:
-    # 仅可修改 BIO 后的物品，已有参数的名字不可修改！
+    #########################################
+    # -------------预设参数-------------
+    # 已有参数的名字不可修改！
     B: gray_stained_glass_pane # 背景
     I: blue_stained_glass_pane # 输入槽背景
     O: orange_stained_glass_pane  # 输出槽背景
-    # NPio是特殊建，值仅是占位符
     N: continue  # 跳过当前槽
     P: progress  # 进度条
     i: input  # 输入槽位
     o: output # 输出槽位
+    # -------------预设参数-------------
+    #########################################
 
     # 可自定义其他的，不要与上面的重复
     # 详见 rsc-wiki.通用物品格式
@@ -99,3 +110,26 @@ additions: # 附加参数
       config:
         lateInit: true
   researches: {}
+
+info:
+  # 是否使用此设置（false时自动读取sc-addon.yml）
+  enable: false
+  # 附属在RSC内的附属id
+  id: RSC_SlimefunExpansion
+  # 附属名字
+  name: Unknown addon
+  # 后置插件
+  depends: []
+  # 硬前置插件（通常不会自动加载）
+  pluginDepends:
+  - Slimefun
+  #- GuizhanLibPlugin
+  # 附属版本
+  version: 1.0 SNAPSHOT
+  # 附属介绍
+  description: No description
+  # 附属作者
+  authors:
+  - ''
+  # 附属仓库
+  repo: ''
