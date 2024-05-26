@@ -1,6 +1,7 @@
 import os
 import re
 import shutil
+import sys
 import yaml
 
 from time import time
@@ -34,8 +35,16 @@ class color:
     bwhite = '\33[49m'
 
 
-def error(string):
-    print(f'{color.red}{string}')
+def error(string, end='\n'):
+    print(f'{color.red}{string}', end=end)
+
+
+def loadingPrint(string, newline=False):
+    sys.stdout.write('\r' + ' '*50)
+    sys.stdout.write('\r' + string)
+    if newline:
+        sys.stdout.write('\n')
+    sys.stdout.flush()
 
 
 def getYamlContext(file):
@@ -701,7 +710,7 @@ def translateInfo():
     global new, data
     with open(getPath('info.yml'), 'w', encoding='utf-8') as f1:
         with open('sc-addon.yml', 'r', encoding='utf-8') as f2:
-            print(f'{color.cyan}Translating sc-addon.yml')
+            loadingPrint(f'{color.cyan}Translating sc-addon.yml')
 
             if config.info.enable:
                 items = {
@@ -731,13 +740,14 @@ def translateInfo():
                 depend.remove('Slimefun')
             items['pluginDepends'] = depend
             dump(f1, items)
+    loadingPrint(f'{color.cyan}sc-addon.yml √', True)
 
 
 def translateGroups():
     global new, data, needVersioned, f1, key
     with open(getPath('groups.yml'), 'w', encoding='utf-8') as f1:
         with open('categories.yml', 'r', encoding='utf-8') as f2:
-            print(f'{color.cyan}Translating categories.yml')
+            loadingPrint(f'{color.cyan}Translating categories.yml')
             d = getYamlContext(f2)
             for key in d:
                 needVersioned = False
@@ -788,13 +798,14 @@ def translateGroups():
                 loadAdditions(p, items, key)
                 dump(f1, items)
                 versionedObjectDump()
+    loadingPrint(f'{color.cyan}categories.yml √', True)
 
 
 def translateMobDrops():
     global new, data, needVersioned, f1, key
     with open(getPath('mob_drops.yml'), 'w', encoding='utf-8') as f1:
         with open('mob-drops.yml', 'r', encoding='utf-8') as f2:
-            print(f'{color.cyan}Translating mob-drops.yml')
+            loadingPrint(f'{color.cyan}Translating mob-drops.yml')
             d = getYamlContext(f2)
             for key in d:
                 needVersioned = False
@@ -823,13 +834,14 @@ def translateMobDrops():
                 loadAdditions(p, items, key)
                 dump(f1, items)
                 versionedObjectDump()
+    loadingPrint(f'{color.cyan}mob-drops.yml √', True)
 
 
 def translateGeoResources():
     global new, data, needVersioned, f1, key
     with open(getPath('geo_resources.yml'), 'w', encoding='utf-8') as f1:
         with open('geo-resources.yml', 'r', encoding='utf-8') as f2:
-            print(f'{color.cyan}Translating geo-resources.yml')
+            loadingPrint(f'{color.cyan}Translating geo-resources.yml')
             d = getYamlContext(f2)
             for key in d:
                 needVersioned = False
@@ -859,41 +871,52 @@ def translateGeoResources():
                 supply['the_end'] = {}
                 biomes = data.get('biome', NULL)
                 if biomes != NULL:
+                    biomes = {
+                        biomeName.lower(): number
+                        for biomeName, number in biomes.items()
+                    }
                     supply['normal'] = biomes
                     supply['nether'] = biomes
                     supply['the_end'] = biomes
                 envs = data.get('environment', NULL)
                 if envs != NULL:
+                    if envs.get('NORMAL', 0) != 0:
+                        if supply['normal'] == {}:
+                            supply['normal'] = envs.get('NORMAL')
+                        else:
+                            supply['normal']['others'] = envs.get('NORMAL')
+                    if envs.get('NETHER', 0) != 0:
+                        if supply['nether'] == {}:
+                            supply['nether'] = envs.get('NETHER')
+                        else:
+                            supply['nether']['others'] = envs.get('NETHER')
+                    if envs.get('THE_END', 0) != 0:
+                        if supply['the_end'] == {}:
+                            supply['the_end'] = envs.get('THE_END')
+                        else:
+                            supply['the_end']['others'] = envs.get('THE_END')
+                if supply == {}:
+                    del supply, new['supply']
+                else:
                     if supply['normal'] == {}:
-                        supply['normal'] = envs.get('NORMAL', 0)
-                    else:
-                        supply['normal']['others'] = envs.get('NORMAL', 0)
+                        del supply['normal']
                     if supply['nether'] == {}:
-                        supply['nether'] = envs.get('NETHER', 0)
-                    else:
-                        supply['nether']['others'] = envs.get('NETHER', 0)
+                        del supply['nether']
                     if supply['the_end'] == {}:
-                        supply['the_end'] = envs.get('THE_END', 0)
-                    else:
-                        supply['the_end']['others'] = envs.get('THE_END', 0)
-                if supply['normal'] == {}:
-                    supply['normal'] = 0
-                if supply['nether'] == {}:
-                    supply['nether'] = 0
-                if supply['the_end'] == {}:
-                    supply['the_end'] = 0
+                        del supply['the_end']
                 # additions
                 p = config.additions.geo_resources
                 loadAdditions(p, items, key)
                 dump(f1, items)
                 versionedObjectDump()
+    loadingPrint(f'{color.cyan}geo-resources.yml √', True)
 
 
 def translateItems():
     global new, data, needVersioned, f1, key
     with open(getPath('items.yml'), 'w', encoding='utf-8') as f1:
         with open('items.yml', 'r', encoding='utf-8') as f2:
-            print(f'{color.cyan}Translating items.yml')
+            loadingPrint(f'{color.cyan}Translating items.yml')
             d = getYamlContext(f2)
             for key in d:
                 needVersioned = False
@@ -925,7 +948,6 @@ def translateItems():
                     copyto('item.material', 'item-id')
                 checkVersioned(dt, ditem)
                 copyto('item.amount', 'item-amount')
-
                 copyto('placeable', 'placeable', {NULL: False})
                 copyto('recipe_type', 'crafting-recipe-type', {"NONE": "NULL"})
                 copyRecipe()
@@ -934,13 +956,14 @@ def translateItems():
                 loadAdditions(p, items, key)
                 dump(f1, items)
                 versionedObjectDump()
+    loadingPrint(f'{color.cyan}items.yml √', True)
 
 
 def translateCapacitors():
     global new, data, needVersioned, f1, key
     with open(getPath('capacitors.yml'), 'w', encoding='utf-8') as f1:
         with open('capacitors.yml', 'r', encoding='utf-8') as f2:
-            print(f'{color.cyan}Translating capacitors.yml')
+            loadingPrint(f'{color.cyan}Translating capacitors.yml')
             d = getYamlContext(f2)
             for key in d:
                 needVersioned = False
@@ -977,6 +1000,7 @@ def translateCapacitors():
                 loadAdditions(p, items, key)
                 dump(f1, items)
                 versionedObjectDump()
+    loadingPrint(f'{color.cyan}capacitors.yml √', True)
 
 
 def translateMachines():
@@ -985,7 +1009,7 @@ def translateMachines():
         inputSlots = config.menus.machines.inputSlots
         outputSlots = config.menus.machines.outputSlots
         with open('machines.yml', 'r', encoding='utf-8') as f2:
-            print(f'{color.cyan}Translating machines.yml')
+            loadingPrint(f'{color.cyan}Translating machines.yml')
             d = getYamlContext(f2)
             for key in d:
                 needVersioned = False
@@ -1028,6 +1052,7 @@ def translateMachines():
                 dump(f1, items)
                 f1.write(f'  input: {inputSlots}\n  output: {outputSlots}\n')
                 versionedObjectDump(i=True, o=True)
+    loadingPrint(f'{color.cyan}machines.yml √', True)
 
 
 def translateGenerators():
@@ -1036,7 +1061,7 @@ def translateGenerators():
         inputSlots = config.menus.machines.inputSlots
         outputSlots = config.menus.machines.outputSlots
         with open('generators.yml', 'r', encoding='utf-8') as f2:
-            print(f'{color.cyan}Translating generators.yml')
+            loadingPrint(f'{color.cyan}Translating generators.yml')
             d = getYamlContext(f2)
             for key in d:
                 needVersioned = False
@@ -1075,17 +1100,17 @@ def translateGenerators():
                 # additions
                 p = config.additions.generators
                 loadAdditions(p, items, key)
-                
                 dump(f1, items)
                 f1.write(f"  input: {inputSlots}\n  output: {outputSlots}\n")
                 versionedObjectDump(i=True, o=True)
+    loadingPrint(f'{color.cyan}generators.yml √', True)
 
 
 def translateSolarGenerators():
     global new, data, needVersioned, f1, key
     with open(getPath('solar_generators.yml'), 'w', encoding='utf-8') as f1:
         with open('solar-generators.yml', 'r', encoding='utf-8') as f2:
-            print(f'{color.cyan}Translating solar-generators.yml')
+            loadingPrint(f'{color.cyan}Translating solar-generators.yml')
             d = getYamlContext(f2)
             for key in d:
                 needVersioned = False
@@ -1125,13 +1150,14 @@ def translateSolarGenerators():
                 loadAdditions(p, items, key)
                 dump(f1, items)
                 versionedObjectDump()
+    loadingPrint(f'{color.cyan}solar-generators.yml √', True)
 
 
 def translateMaterialGenerators():
     global new, data, needVersioned, f1, key, outputSlots
     with open(getPath('mat_generators.yml'), 'w', encoding='utf-8') as f1:
         with open('material-generators.yml', 'r', encoding='utf-8') as f2:
-            print(f'{color.cyan}Translating material-generators.yml')
+            loadingPrint(f'{color.cyan}Translating material-generators.yml')
             d = getYamlContext(f2)
             outputSlots = config.menus.material_generators.outputSlots
             progressSlot = config.menus.material_generators.progressSlot
@@ -1191,13 +1217,14 @@ def translateMaterialGenerators():
                 dump(f1, items)
                 f1.write(f"  output: {outputSlots}\n")
                 versionedObjectDump(o=True)
+    loadingPrint(f'{color.cyan}material-generators.yml √', True)
 
 
 def translateResearches():
     global new, data, needVersioned, f1, key
     with open(getPath('researches.yml'), 'w', encoding='utf-8') as f1:
         with open('researches.yml', 'r', encoding='utf-8') as f2:
-            print(f'{color.cyan}Translating researches.yml')
+            loadingPrint(f'{color.cyan}Translating researches.yml')
             d = getYamlContext(f2)
             for key in d:
                 needVersioned = False
@@ -1214,12 +1241,13 @@ def translateResearches():
                 loadAdditions(p, items, key)
                 dump(f1, items)
                 versionedObjectDump()
+    loadingPrint(f'{color.cyan}researches.yml √', True)
 
 
 def translateMenus():
     global new, data, needVersioned, f1, key
     with open(getPath('menus.yml'), 'w', encoding='utf-8') as f1:
-        print(f'{color.cyan}Generating meuns.yml')
+        loadingPrint(f'{color.cyan}Generating meuns.yml')
         cfg = config.menus.machines
         progressSlot = cfg.progressSlot
         for menu in menus['machines']:
@@ -1256,6 +1284,7 @@ def translateMenus():
                 "slots": cfg.slots
             }
             dump(f1, items)
+    loadingPrint(f'{color.cyan}meuns.yml √', True)
 
 
 def CreateFile(file_name, text=''):
@@ -1264,7 +1293,7 @@ def CreateFile(file_name, text=''):
         file_name = file_name[0]
     with open(getPath(file_name), 'w', encoding='utf-8') as f:
         f.write(f'\n{text}')
-        print(f'{color.green}已补全文件{file_name}')
+        loadingPrint(f'{color.green}{file_name} √', True)
 
 
 menus = {'machines': [], 'generators': [], 'material-generators': []}
@@ -1361,15 +1390,15 @@ def main():
                 else:
                     CreateFile(createArgs)
             translateMenus()
-            print(f'{color.cyan}作为作者，我并不能保证转换出来的文本一定能够使用，因为结果会受到各种因素的影响')
+            print(f'{color.cyan}\n作为作者，我并不能保证转换出来的文本一定能够使用，因为结果会受到各种因素的影响')
             print(f'{color.cyan}包括但不限于，原配置错误，规则不一致等。')
+            input(f"{color.cyan}Press Enter to exit...{color.red}")
         else:
             error('未找到配置文件 translate_config.yml. 请从github补全文件再运行本程序！')
     finally:
-        print(f'{color.cyan}如遇无法转换，可能是配置不完整，如确认配置文件无误请提issue！')
-        print(f'{color.cyan}记得修改 info.yml 以避免出现附属重名')
+        error(f'\n{color.red}如遇无法转换，可能是配置不完整，如确认配置文件无误请提issue！')
+        error(f'{color.red}记得修改 info.yml 以避免出现附属重名')
         print(f"{color.green}Spent {time()-start}")
-        input(f"{color.cyan}Press Enter to exit...")
 
 
 if __name__ == '__main__':
