@@ -1,20 +1,28 @@
-# 1.2REALEASE
+# 1.3SHOT
 
 1. 源代码
 
   > 优化了一下，然后**比原来更史了**
+  >
+  > 再次优化了一下
 
 2. 实验性功能
 
   > 所有物品自动向上兼容 MC
+  >
   > `outputFolder` 现在可以是绝对路径了
+  >
   > 增加了 `groupMode` 参数 和 `info` 设置
 
 3. BUG修复
 
   > 修复了发电机的燃料转换时遇到的错误
+  >
   > 修复了当材料为空气时，加载失败的bug
+  >
   > 修复了配方机器和发电机意外触发多配方显示的bug
+  >
+  > 修复了`groupMode`无法正常工作的bug
 
 # 1.2REALEASE
 
@@ -44,6 +52,7 @@
 3. 实验性功能
 
   > 在`translate_config.yml`中增加了`colorMode`, `menus.use-import`参数
+  >
   > 实现了`additions`功能，现在可以自定义额外参数了
 
 # 1.2SHOT
@@ -63,6 +72,7 @@
 1. 检测更新
 
   > **现在不需要完整的`SlimeCustomizer`配置也能转换成`RykenSlimeCustomizer`配置了**
+  >
   > **增加了 `sc_to_rsc.exe` . 以便在没有安装 `python` 的 Windows 64位 电脑上运行**
 
 # 1.1SHOT

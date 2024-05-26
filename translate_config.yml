@@ -3,7 +3,7 @@
 # 转换后输出到哪个文件夹
 outputFolder: "translated"
 
-colorMode: "cmi"
+colorMode: cmi
 # vanilla: &#RRGGBB
 # vanilla2: &x&R&R&G&G&B&B
 # cmi: {#RRGGBB}
@@ -11,11 +11,17 @@ colorMode: "cmi"
 # minedown: &#RRGGBB&
 
 # 物品组处理方式
-groupMode: "prefix"
+groupMode: none
 # 示例:       item_group: example
 # prefix:     item_group: rsc_example
 # namespace:  item_group: rykenslimecustomizer:example
 # none:       item_group: example
+
+# 设置所有保存物品的版本号
+setAllSaveditems_v: none
+# none: 不做修改
+# 数字: 改为对应数字
+# 示例: setAllSaveditems_v: 2975
 
 menus:
   sections:
