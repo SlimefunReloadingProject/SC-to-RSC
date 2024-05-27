@@ -1,14 +1,16 @@
-# 1.3REALEASE
+# 1.3-REALEASE
 
-1. 内容输出
+1. 规范了版本号的格式
+
+2. 内容输出
 
   > 现在会更新原本的进度了
 
-2. BUG修复
+3. BUG修复
 
   > 修复了`geo-resources.yml`转换之后有时会出现无法正常采集的bug
 
-# 1.3SHOT
+# 1.3-SNAPSHOT
 
 1. 源代码
 
@@ -34,7 +36,7 @@
   >
   > 修复了`groupMode`无法正常工作的bug
 
-# 1.2REALEASE
+# 1.2-REALEASE
 
 1. 源代码
 
@@ -48,7 +50,7 @@
 
   > 去除了默认的`translate_config`的`additions.researches`的额外参数
 
-# 1.2ALPHA
+# 1.2-ALPHA
 
 1. 源代码
 
@@ -65,7 +67,7 @@
   >
   > 实现了`additions`功能，现在可以自定义额外参数了
 
-# 1.2SHOT
+# 1.2-SNAPSHOT
 
 1. 输出格式更新
 
@@ -75,9 +77,9 @@
 
   > **修复了修改`translate_config.yml`无效的bug**
 
-3.  ~~画新的大饼~~
+3. ~~画新的大饼~~
 
-# 1.1REALEASE
+# 1.1-REALEASE
 
 1. 检测更新
 
@@ -85,7 +87,7 @@
   >
   > **增加了 `sc_to_rsc.exe` . 以便在没有安装 `python` 的 Windows 64位 电脑上运行**
 
-# 1.1SHOT
+# 1.1-SNAPSHOT
 
 1. 配置文件
 

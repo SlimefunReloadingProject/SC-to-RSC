@@ -6,7 +6,7 @@ import yaml
 
 from time import time
 
-VERSION = '1.3SHOT'
+VERSION = '1.3-REALEASE'
 
 
 class color:
