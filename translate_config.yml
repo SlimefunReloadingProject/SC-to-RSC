@@ -49,6 +49,11 @@ menus:
     #   lore:
     #     - 第1行
     #     - 第114514行
+    #   progressbar: true
+    #   progressBarItem:
+    #     name: '&a'
+    #     material_type: mc
+    #     material: OAK_PLANKS
     # b: this_is_a_mc_item
     # c:
     #   material_type: skull_hash
@@ -131,7 +136,7 @@ info:
   - Slimefun
   #- GuizhanLibPlugin
   # 附属版本
-  version: 1.0 SNAPSHOT
+  version: 1.0-SNAPSHOT
   # 附属介绍
   description: No description
   # 附属作者

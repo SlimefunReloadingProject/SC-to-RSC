@@ -1,3 +1,11 @@
+# 1.4-SNAPSHOT
+
+1. code style fix
+
+2. 内容输出
+
+  > 现在进度条不再是固定的了
+
 # 1.3-REALEASE
 
 1. 规范了版本号的格式
