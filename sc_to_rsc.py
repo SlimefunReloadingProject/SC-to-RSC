@@ -419,7 +419,7 @@ def copyRecipe():
         if ct != "NONE":
             copyto(
                 f'recipe.{dkey}.material_type',
-                f'crafting-recipe.{dkey}.type', itemType
+                f'crafting-recipe.{dkey}.type', item_type
             )
             copyto(f'recipe.{dkey}.material', f'crafting-recipe.{dkey}.id')
             copyto(f'recipe.{dkey}.amount', f'crafting-recipe.{dkey}.amount')
@@ -435,12 +435,12 @@ def copyRecipes():
             f'recipes.{dkey}.speed-in-seconds'
         )
         for opera in {'input', 'output'}:
-            for iterNum in {1, 2}:
+            for iter_num in {1, 2}:
                 try:
-                    if str(iterNum) in recipe[opera]:
-                        cfg = recipe[opera][str(iterNum)]
+                    if str(iter_num) in recipe[opera]:
+                        cfg = recipe[opera][str(iter_num)]
                     else:
-                        cfg = recipe[opera][iterNum]
+                        cfg = recipe[opera][iter_num]
                 except KeyError:
                     continue
                 mt = cfg['type']
@@ -449,19 +449,19 @@ def copyRecipes():
                     nr = new['recipes'][f"{dkey}"]
                     if opera not in nr:
                         nr[opera] = {}
-                    if iterNum not in nr[opera]:
-                        nr[opera][iterNum] = {}
-                    nr[opera][iterNum]['material_type'] = 'none'
+                    if iter_num not in nr[opera]:
+                        nr[opera][iter_num] = {}
+                    nr[opera][iter_num]['material_type'] = 'none'
                 elif mt != 'NONE':
-                    oldPrefix = f"recipes.{dkey}.{opera}.{iterNum}"
-                    newPrefix = f"recipes.\"{dkey}\".{opera}.{iterNum}"
+                    old_prefix = f"recipes.{dkey}.{opera}.{iter_num}"
+                    new_prefix = f"recipes.\"{dkey}\".{opera}.{iter_num}"
                     copyto(
-                        f'{newPrefix}.material_type',
-                        f'{oldPrefix}.type',
-                        itemType
+                        f'{new_prefix}.material_type',
+                        f'{old_prefix}.type',
+                        item_type
                     )
-                    copyto(f'{newPrefix}.material', f'{oldPrefix}.id')
-                    copyto(f'{newPrefix}.amount', f'{oldPrefix}.amount')
+                    copyto(f'{new_prefix}.material', f'{old_prefix}.id')
+                    copyto(f'{new_prefix}.amount', f'{old_prefix}.amount')
 
 
 def copyRecipesGenerator():
@@ -477,11 +477,11 @@ def copyRecipesGenerator():
             mt == 'VANILLA'
             and recipe['input']['id'].upper() != 'AIR'
         ):
-            oldPrefix = f"recipes.{dkey}.input"
-            newPrefix = f"fuels.\"{dkey}\".item"
-            copyto(f'{newPrefix}.material_type', f'{oldPrefix}.type', itemType)
-            copyto(f'{newPrefix}.material', f'{oldPrefix}.id')
-            copyto(f'{newPrefix}.amount', f'{oldPrefix}.amount')
+            old_prefix = f"recipes.{dkey}.input"
+            new_prefix = f"fuels.\"{dkey}\".item"
+            copyto(f'{new_prefix}.material_type', f'{old_prefix}.type', item_type)
+            copyto(f'{new_prefix}.material', f'{old_prefix}.id')
+            copyto(f'{new_prefix}.amount', f'{old_prefix}.amount')
             item = new['fuels'][dkey]['item']
             checkVersioned(mt, item['material'])
         mt = data['recipes'][dkey]['output']['type']
@@ -489,11 +489,11 @@ def copyRecipesGenerator():
             mt == 'VANILLA'
             and recipe['output']['id'].upper() != 'AIR'
         ):
-            newPrefix = f"fuels.\"{dkey}\".output"
-            oldPrefix = f"recipes.{dkey}.output"
-            copyto(f'{newPrefix}.material_type', f'{oldPrefix}.type', itemType)
-            copyto(f'{newPrefix}.material', f'{oldPrefix}.id')
-            copyto(f'{newPrefix}.amount', f'{oldPrefix}.amount')
+            new_prefix = f"fuels.\"{dkey}\".output"
+            old_prefix = f"recipes.{dkey}.output"
+            copyto(f'{new_prefix}.material_type', f'{old_prefix}.type', item_type)
+            copyto(f'{new_prefix}.material', f'{old_prefix}.id')
+            copyto(f'{new_prefix}.amount', f'{old_prefix}.amount')
             item = new['fuels'][dkey]['output']
             checkVersioned(mt, item['material'])
 
@@ -818,7 +818,7 @@ def translateGeoResources():
                             supply['the_end'] = envs.get('THE_END')
                         else:
                             supply['the_end']['others'] = envs.get('THE_END')
-                if supply == {}:
+                if not supply:
                     del supply, new['supply']
                 else:
                     if supply['normal'] == {}:
@@ -1127,7 +1127,7 @@ def translateMaterialGenerators():
                     new['outputItem'] = {}
                     new['outputItem']['material_type'] = 'none'
                 else:
-                    copyto('outputItem.material_type', 'output.type', itemType)
+                    copyto('outputItem.material_type', 'output.type', item_type)
                     copyto('outputItem.material', 'output.id')
                     copyto('outputItem.amount', 'output.amount')
                     checkVersioned(
@@ -1183,6 +1183,7 @@ def translateMenus():
                 "slots": cfg.slots
             }
             items[iden]['slots'][progress_slot]['progressBarItem'] = {}
+            items[iden]['slots'][progress_slot]['progressBarItem']['name'] = '&a'
             items[iden]['slots'][progress_slot]['progressBarItem']['material'] = progress_item
             dump(f1, items)
         cfg = config.menus.generators
@@ -1197,6 +1198,7 @@ def translateMenus():
                 "slots": cfg.slots
             }
             items[iden]['slots'][progress_slot]['progressBarItem'] = {}
+            items[iden]['slots'][progress_slot]['progressBarItem']['name'] = '&a'
             items[iden]['slots'][progress_slot]['progressBarItem']['material'] = progress_item
             dump(f1, items)
         cfg = config.menus.material_generators
@@ -1209,7 +1211,7 @@ def translateMenus():
                 "slots": cfg.slots
             }
             dump(f1, items)
-    loadingPrint(f'{Color.green}meuns.yml √', True)
+    loadingPrint(f'{Color.cyan}meuns.yml √', True)
 
 
 def createFile(file_name, text=''):
@@ -1222,7 +1224,7 @@ def createFile(file_name, text=''):
 
 
 menus = {'machines': [], 'generators': [], 'material-generators': []}
-itemType = {
+item_type = {
     'VANILLA': 'mc',
     'SLIMEFUN': 'slimefun',
     'NONE': 'none',
