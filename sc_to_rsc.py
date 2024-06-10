@@ -1,16 +1,16 @@
 import os
 import yaml
 
-from re import findall, search
+from re import search
 from shutil import copy as copyFile
 from sys import stdout
 from time import time
 
-VERSION = '1.4-SNAPSHOT'
+VERSION = "1.4-REALEASE"
 
 
 class Color:
-    # Text color
+
     black = '\33[30m'
     red = '\33[31m'
     green = '\33[32m'
@@ -22,7 +22,6 @@ class Color:
     gray = grey = '\33[38m'
     white = reset = '\33[39m'
 
-    # Background color
     bblack = '\33[40m'
     bred = '\33[41m'
     bgreen = '\33[42m'
@@ -40,7 +39,7 @@ def error(string, end='\n'):
 
 
 def loadingPrint(string, newline=False):
-    stdout.write('\r' + ' '*50)
+    stdout.write('\r' + ' '*100)
     stdout.write('\r' + string)
     if newline:
         stdout.write('\n')
@@ -343,17 +342,19 @@ def copyto(new_string, old_string, translate={}):
 
 
 def replaceColor(item):
-    # 能跑就行
-    matches = findall(r'((&|§)x(((&|§)[0-9A-Fa-f]){6}))', item)
-    if matches != []:
-        for match in matches:
-            code = match[0]
-            temp = hexColorForm.format(
-                code[3], code[5], code[7], code[9], code[11], code[13]
-                )
-            if config.colorMode == 'cmi':
-                temp = '{' + temp + '}'
-            item = item.replace(code, temp)
+    while True:
+        match1 = search(r'(&|§)x((&|§)[0-9A-Fa-f]){6}', item)
+
+        if match1 is None:
+            break
+
+        code = match1.group()
+        temp = hexColorForm.format(
+            code[3], code[5], code[7], code[9], code[11], code[13]
+            )
+        if config.colorMode == 'cmi':
+            temp = '{' + temp + '}'
+        item = item.replace(code, temp)
 
     for char in 'lmnok':
         while True:
@@ -388,6 +389,10 @@ def replaceColor(item):
 def copyName(key='item-name'):
     global new, data
     name = data[key]
+
+    if name == "":
+        return
+
     name = replaceColor(name)
     if 'item' not in new:
         new['item'] = {}
@@ -397,6 +402,12 @@ def copyName(key='item-name'):
 def copyLore(key='item-lore'):
     global new, data
     lores = data.get(key, [])
+
+    if lores == []:
+        if config.lores.full_copy_slimecustomizer:
+            new['item']['lore'] = []
+        return
+
     new_lores = []
     if isinstance(lores, list):
         for lore in lores:
@@ -419,7 +430,7 @@ def copyRecipe():
         if ct != "NONE":
             copyto(
                 f'recipe.{dkey}.material_type',
-                f'crafting-recipe.{dkey}.type', item_type
+                f'crafting-recipe.{dkey}.type', itemType
             )
             copyto(f'recipe.{dkey}.material', f'crafting-recipe.{dkey}.id')
             copyto(f'recipe.{dkey}.amount', f'crafting-recipe.{dkey}.amount')
@@ -435,12 +446,12 @@ def copyRecipes():
             f'recipes.{dkey}.speed-in-seconds'
         )
         for opera in {'input', 'output'}:
-            for iter_num in {1, 2}:
+            for iterNum in {1, 2}:
                 try:
-                    if str(iter_num) in recipe[opera]:
-                        cfg = recipe[opera][str(iter_num)]
+                    if str(iterNum) in recipe[opera]:
+                        cfg = recipe[opera][str(iterNum)]
                     else:
-                        cfg = recipe[opera][iter_num]
+                        cfg = recipe[opera][iterNum]
                 except KeyError:
                     continue
                 mt = cfg['type']
@@ -449,19 +460,19 @@ def copyRecipes():
                     nr = new['recipes'][f"{dkey}"]
                     if opera not in nr:
                         nr[opera] = {}
-                    if iter_num not in nr[opera]:
-                        nr[opera][iter_num] = {}
-                    nr[opera][iter_num]['material_type'] = 'none'
+                    if iterNum not in nr[opera]:
+                        nr[opera][iterNum] = {}
+                    nr[opera][iterNum]['material_type'] = 'none'
                 elif mt != 'NONE':
-                    old_prefix = f"recipes.{dkey}.{opera}.{iter_num}"
-                    new_prefix = f"recipes.\"{dkey}\".{opera}.{iter_num}"
+                    oldPrefix = f"recipes.{dkey}.{opera}.{iterNum}"
+                    newPrefix = f"recipes.\"{dkey}\".{opera}.{iterNum}"
                     copyto(
-                        f'{new_prefix}.material_type',
-                        f'{old_prefix}.type',
-                        item_type
+                        f'{newPrefix}.material_type',
+                        f'{oldPrefix}.type',
+                        itemType
                     )
-                    copyto(f'{new_prefix}.material', f'{old_prefix}.id')
-                    copyto(f'{new_prefix}.amount', f'{old_prefix}.amount')
+                    copyto(f'{newPrefix}.material', f'{oldPrefix}.id')
+                    copyto(f'{newPrefix}.amount', f'{oldPrefix}.amount')
 
 
 def copyRecipesGenerator():
@@ -477,11 +488,11 @@ def copyRecipesGenerator():
             mt == 'VANILLA'
             and recipe['input']['id'].upper() != 'AIR'
         ):
-            old_prefix = f"recipes.{dkey}.input"
-            new_prefix = f"fuels.\"{dkey}\".item"
-            copyto(f'{new_prefix}.material_type', f'{old_prefix}.type', item_type)
-            copyto(f'{new_prefix}.material', f'{old_prefix}.id')
-            copyto(f'{new_prefix}.amount', f'{old_prefix}.amount')
+            oldPrefix = f"recipes.{dkey}.input"
+            newPrefix = f"fuels.\"{dkey}\".item"
+            copyto(f'{newPrefix}.material_type', f'{oldPrefix}.type', itemType)
+            copyto(f'{newPrefix}.material', f'{oldPrefix}.id')
+            copyto(f'{newPrefix}.amount', f'{oldPrefix}.amount')
             item = new['fuels'][dkey]['item']
             checkVersioned(mt, item['material'])
         mt = data['recipes'][dkey]['output']['type']
@@ -489,11 +500,11 @@ def copyRecipesGenerator():
             mt == 'VANILLA'
             and recipe['output']['id'].upper() != 'AIR'
         ):
-            new_prefix = f"fuels.\"{dkey}\".output"
-            old_prefix = f"recipes.{dkey}.output"
-            copyto(f'{new_prefix}.material_type', f'{old_prefix}.type', item_type)
-            copyto(f'{new_prefix}.material', f'{old_prefix}.id')
-            copyto(f'{new_prefix}.amount', f'{old_prefix}.amount')
+            newPrefix = f"fuels.\"{dkey}\".output"
+            oldPrefix = f"recipes.{dkey}.output"
+            copyto(f'{newPrefix}.material_type', f'{oldPrefix}.type', itemType)
+            copyto(f'{newPrefix}.material', f'{oldPrefix}.id')
+            copyto(f'{newPrefix}.amount', f'{oldPrefix}.amount')
             item = new['fuels'][dkey]['output']
             checkVersioned(mt, item['material'])
 
@@ -633,7 +644,7 @@ def translateInfo():
     global new, data
     with open(getPath('info.yml'), 'w', encoding='utf-8') as f1:
         with open('sc-addon.yml', 'r', encoding='utf-8') as f2:
-            loadingPrint(f'{Color.cyan}Translating sc-addon.yml')
+            loadingPrint(f'{Color.gold}Translating{Color.green} sc-addon.yml')
 
             if config.info.enable:
                 items = {
@@ -663,15 +674,17 @@ def translateInfo():
                 depend.remove('Slimefun')
             items['pluginDepends'] = depend
             dump(f1, items)
-    loadingPrint(f'{Color.cyan}sc-addon.yml √', True)
+    loadingPrint(f'{Color.green}sc-addon.yml √', True)
 
 
 def translateGroups():
     global new, data, need_versioned, f1, key
     with open(getPath('groups.yml'), 'w', encoding='utf-8') as f1:
         with open('categories.yml', 'r', encoding='utf-8') as f2:
-            loadingPrint(f'{Color.cyan}Translating categories.yml')
             d = getYamlContext(f2)
+            c = 0
+            ld = len(d)
+            loadingPrint(f'{Color.gold}Translating{Color.green} categories.yml {Color.gold}{c} {Color.gray}/ {Color.green}{ld}')
             for key in d:
                 need_versioned = False
                 items = {}
@@ -681,7 +694,7 @@ def translateGroups():
                 new = items[key] = {}
                 new['lateInit'] = False
                 t = data.get('type', 'normal')
-                # special check
+
                 if 'parent' in data:
                     if data['parent'] == 'this':
                         t = 'nested'
@@ -716,19 +729,24 @@ def translateGroups():
                     copyto('parents', 'parents')
                 if 'tier' in data:
                     copyto('tier', 'tier')
-                # additions
+
                 p = config.additions.categories
                 loadAdditions(p, items, key)
                 dump(f1, items)
                 versionedObjectDump()
-    loadingPrint(f'{Color.cyan}categories.yml √', True)
+                c += 1
+                loadingPrint(f'{Color.gold}Translating{Color.green} categories.yml {Color.gold}{c} {Color.gray}/ {Color.green}{ld}')
+    loadingPrint(f'{Color.green}categories.yml √', True)
 
 
 def translateMobDrops():
     global new, data, need_versioned, f1, key
     with open(getPath('mob_drops.yml'), 'w', encoding='utf-8') as f1:
         with open('mob-drops.yml', 'r', encoding='utf-8') as f2:
-            loadingPrint(f'{Color.cyan}Translating mob-drops.yml')
+            d = getYamlContext(f2)
+            c = 0
+            ld = len(d)
+            loadingPrint(f'{Color.gold}Translating{Color.green} mob-drops.yml {Color.gold}{c} {Color.gray}/ {Color.green}{ld}')
             d = getYamlContext(f2)
             for key in d:
                 need_versioned = False
@@ -752,20 +770,24 @@ def translateMobDrops():
 
                 copyto('entity', 'mob')
                 copyto('chance', 'chance')
-                # additions
+
                 p = config.additions.mob_drops
                 loadAdditions(p, items, key)
                 dump(f1, items)
                 versionedObjectDump()
-    loadingPrint(f'{Color.cyan}mob-drops.yml √', True)
+                c += 1
+                loadingPrint(f'{Color.gold}Translating{Color.green} mob-drops.yml {Color.gold}{c} {Color.gray}/ {Color.green}{ld}')
+    loadingPrint(f'{Color.green}mob-drops.yml √', True)
 
 
 def translateGeoResources():
     global new, data, need_versioned, f1, key
     with open(getPath('geo_resources.yml'), 'w', encoding='utf-8') as f1:
         with open('geo-resources.yml', 'r', encoding='utf-8') as f2:
-            loadingPrint(f'{Color.cyan}Translating geo-resources.yml')
             d = getYamlContext(f2)
+            c = 0
+            ld = len(d)
+            loadingPrint(f'{Color.gold}Translating{Color.green} geo-resources.yml {Color.gold}{c} {Color.gray}/ {Color.green}{ld}')
             for key in d:
                 need_versioned = False
                 items = {}
@@ -818,7 +840,7 @@ def translateGeoResources():
                             supply['the_end'] = envs.get('THE_END')
                         else:
                             supply['the_end']['others'] = envs.get('THE_END')
-                if not supply:
+                if supply == {}:
                     del supply, new['supply']
                 else:
                     if supply['normal'] == {}:
@@ -827,20 +849,24 @@ def translateGeoResources():
                         del supply['nether']
                     if supply['the_end'] == {}:
                         del supply['the_end']
-                # additions
+
                 p = config.additions.geo_resources
                 loadAdditions(p, items, key)
                 dump(f1, items)
                 versionedObjectDump()
-    loadingPrint(f'{Color.cyan}geo-resources.yml √', True)
+                c += 1
+                loadingPrint(f'{Color.gold}Translating{Color.green} geo-resources.yml {Color.gold}{c} {Color.gray}/ {Color.green}{ld}')
+    loadingPrint(f'{Color.green}geo-resources.yml √', True)
 
 
 def translateItems():
     global new, data, need_versioned, f1, key
     with open(getPath('items.yml'), 'w', encoding='utf-8') as f1:
         with open('items.yml', 'r', encoding='utf-8') as f2:
-            loadingPrint(f'{Color.cyan}Translating items.yml')
             d = getYamlContext(f2)
+            c = 0
+            ld = len(d)
+            loadingPrint(f'{Color.gold}Translating{Color.green} items.yml {Color.gold}{c} {Color.gray}/ {Color.green}{ld}')
             for key in d:
                 need_versioned = False
                 items = {}
@@ -874,20 +900,24 @@ def translateItems():
                 copyto('placeable', 'placeable', {NULL: False})
                 copyto('recipe_type', 'crafting-recipe-type', {"NONE": "NULL"})
                 copyRecipe()
-                # additions
+
                 p = config.additions.items
                 loadAdditions(p, items, key)
                 dump(f1, items)
                 versionedObjectDump()
-    loadingPrint(f'{Color.cyan}items.yml √', True)
+                c += 1
+                loadingPrint(f'{Color.gold}Translating{Color.green} items.yml {Color.gold}{c} {Color.gray}/ {Color.green}{ld}')
+    loadingPrint(f'{Color.green}items.yml √', True)
 
 
 def translateCapacitors():
     global new, data, need_versioned, f1, key
     with open(getPath('capacitors.yml'), 'w', encoding='utf-8') as f1:
         with open('capacitors.yml', 'r', encoding='utf-8') as f2:
-            loadingPrint(f'{Color.cyan}Translating capacitors.yml')
             d = getYamlContext(f2)
+            c = 0
+            ld = len(d)
+            loadingPrint(f'{Color.gold}Translating{Color.green} capacitors.yml {Color.gold}{c} {Color.gray}/ {Color.green}{ld}')
             for key in d:
                 need_versioned = False
                 items = {}
@@ -918,12 +948,14 @@ def translateCapacitors():
                 copyto('capacity', 'capacity')
                 copyto('recipe_type', 'crafting-recipe-type', {"NONE": "NULL"})
                 copyRecipe()
-                # additions
+
                 p = config.additions.capacitors
                 loadAdditions(p, items, key)
                 dump(f1, items)
                 versionedObjectDump()
-    loadingPrint(f'{Color.cyan}capacitors.yml √', True)
+                c += 1
+                loadingPrint(f'{Color.gold}Translating{Color.green} capacitors.yml {Color.gold}{c} {Color.gray}/ {Color.green}{ld}')
+    loadingPrint(f'{Color.green}capacitors.yml √', True)
 
 
 def translateMachines():
@@ -932,8 +964,10 @@ def translateMachines():
         input_slots = config.menus.machines.input_slots
         output_slots = config.menus.machines.output_slots
         with open('machines.yml', 'r', encoding='utf-8') as f2:
-            loadingPrint(f'{Color.cyan}Translating machines.yml')
             d = getYamlContext(f2)
+            c = 0
+            ld = len(d)
+            loadingPrint(f'{Color.gold}Translating{Color.green} machines.yml {Color.gold}{c} {Color.gray}/ {Color.green}{ld}')
             for key in d:
                 need_versioned = False
                 items = {}
@@ -969,13 +1003,15 @@ def translateMachines():
                 copyto('capacity', 'stats.energy-buffer')
                 copyto('energyPerCraft', 'stats.energy-consumption')
                 copyRecipes()
-                # additions
+
                 p = config.additions.machines
                 loadAdditions(p, items, key)
                 dump(f1, items)
                 f1.write(f'  input: {input_slots}\n  output: {output_slots}\n')
                 versionedObjectDump(i=True, o=True)
-    loadingPrint(f'{Color.cyan}machines.yml √', True)
+                c += 1
+                loadingPrint(f'{Color.gold}Translating{Color.green} machines.yml {Color.gold}{c} {Color.gray}/ {Color.green}{ld}')
+    loadingPrint(f'{Color.green}machines.yml √', True)
 
 
 def translateGenerators():
@@ -984,8 +1020,10 @@ def translateGenerators():
         input_slots = config.menus.machines.input_slots
         output_slots = config.menus.machines.output_slots
         with open('generators.yml', 'r', encoding='utf-8') as f2:
-            loadingPrint(f'{Color.cyan}Translating generators.yml')
             d = getYamlContext(f2)
+            c = 0
+            ld = len(d)
+            loadingPrint(f'{Color.gold}Translating{Color.green} generators.yml {Color.gold}{c} {Color.gray}/ {Color.green}{ld}')
             for key in d:
                 need_versioned = False
                 items = {}
@@ -1020,21 +1058,25 @@ def translateGenerators():
                 copyto('capacity', 'stats.energy-buffer')
                 copyto('production', 'stats.energy-production')
                 copyRecipesGenerator()
-                # additions
+
                 p = config.additions.generators
                 loadAdditions(p, items, key)
                 dump(f1, items)
                 f1.write(f"  input: {input_slots}\n  output: {output_slots}\n")
                 versionedObjectDump(i=True, o=True)
-    loadingPrint(f'{Color.cyan}generators.yml √', True)
+                c += 1
+                loadingPrint(f'{Color.gold}Translating{Color.green} generators.yml {Color.gold}{c} {Color.gray}/ {Color.green}{ld}')
+    loadingPrint(f'{Color.green}generators.yml √', True)
 
 
 def translateSolarGenerators():
     global new, data, need_versioned, f1, key
     with open(getPath('solar_generators.yml'), 'w', encoding='utf-8') as f1:
         with open('solar-generators.yml', 'r', encoding='utf-8') as f2:
-            loadingPrint(f'{Color.cyan}Translating solar-generators.yml')
             d = getYamlContext(f2)
+            c = 0
+            ld = len(d)
+            loadingPrint(f'{Color.gold}Translating{Color.green} solar-generators.yml {Color.gold}{c} {Color.gray}/ {Color.green}{ld}')
             for key in d:
                 need_versioned = False
                 items = {}
@@ -1068,20 +1110,24 @@ def translateSolarGenerators():
                 new['dayEnergy'] = de
                 new['nightEnergy'] = ne
                 new['capacity'] = max(de, ne)
-                # additions
+
                 p = config.additions.solar_generators
                 loadAdditions(p, items, key)
                 dump(f1, items)
                 versionedObjectDump()
-    loadingPrint(f'{Color.cyan}solar-generators.yml √', True)
+                c += 1
+                loadingPrint(f'{Color.gold}Translating{Color.green} solar-generators.yml {Color.gold}{c} {Color.gray}/ {Color.green}{ld}')
+    loadingPrint(f'{Color.green}solar-generators.yml √', True)
 
 
 def translateMaterialGenerators():
     global new, data, need_versioned, f1, key, output_slots
     with open(getPath('mat_generators.yml'), 'w', encoding='utf-8') as f1:
         with open('material-generators.yml', 'r', encoding='utf-8') as f2:
-            loadingPrint(f'{Color.cyan}Translating material-generators.yml')
             d = getYamlContext(f2)
+            c = 0
+            ld = len(d)
+            loadingPrint(f'{Color.gold}Translating{Color.green} material-generators.yml {Color.gold}{c} {Color.gray}/ {Color.green}{ld}')
             output_slots = config.menus.material_generators.output_slots
             progress_slot = config.menus.material_generators.progress_slot
             for key in d:
@@ -1127,28 +1173,32 @@ def translateMaterialGenerators():
                     new['outputItem'] = {}
                     new['outputItem']['material_type'] = 'none'
                 else:
-                    copyto('outputItem.material_type', 'output.type', item_type)
+                    copyto('outputItem.material_type', 'output.type', itemType)
                     copyto('outputItem.material', 'output.id')
                     copyto('outputItem.amount', 'output.amount')
                     checkVersioned(
                         new['outputItem']['material_type'],
                         new['outputItem']['material']
                     )
-                # additions
+
                 p = config.additions.material_generators
                 loadAdditions(p, items, key)
                 dump(f1, items)
                 f1.write(f"  output: {output_slots}\n")
                 versionedObjectDump(o=True)
-    loadingPrint(f'{Color.cyan}material-generators.yml √', True)
+                c += 1
+                loadingPrint(f'{Color.gold}Translating{Color.green} material-generators.yml {Color.gold}{c} {Color.gray}/ {Color.green}{ld}')
+    loadingPrint(f'{Color.green}material-generators.yml √', True)
 
 
 def translateResearches():
     global new, data, need_versioned, f1, key
     with open(getPath('researches.yml'), 'w', encoding='utf-8') as f1:
         with open('researches.yml', 'r', encoding='utf-8') as f2:
-            loadingPrint(f'{Color.cyan}Translating researches.yml')
             d = getYamlContext(f2)
+            c = 0
+            ld = len(d)
+            loadingPrint(f'{Color.gold}Translating{Color.green} researches.yml {Color.gold}{c} {Color.gray}/ {Color.green}{ld}')
             for key in d:
                 need_versioned = False
                 items = {}
@@ -1159,18 +1209,22 @@ def translateResearches():
                 copyto('name', 'name')
                 copyto('levelCost', 'cost')
                 copyto('items', 'items')
-                # additions
+
                 p = config.additions.researches
                 loadAdditions(p, items, key)
                 dump(f1, items)
                 versionedObjectDump()
-    loadingPrint(f'{Color.cyan}researches.yml √', True)
+                c += 1
+                loadingPrint(f'{Color.gold}Translating{Color.green} researches.yml {Color.gold}{c} {Color.gray}/ {Color.green}{ld}')
+    loadingPrint(f'{Color.green}researches.yml √', True)
 
 
-def translateMenus():
+def generateMenus():
     global new, data, need_versioned, f1, key
     with open(getPath('menus.yml'), 'w', encoding='utf-8') as f1:
-        loadingPrint(f'{Color.cyan}Generating meuns.yml')
+        c = 0
+        ld = len(menus['machines']+menus['generators']+menus['material-generators'])
+        loadingPrint(f'{Color.gold}Generating{Color.green} meuns.yml {Color.gold}{c} {Color.gray}/ {Color.green}{ld}')
         cfg = config.menus.machines
         progress_slot = cfg.progress_slot
         for menu in menus['machines']:
@@ -1183,9 +1237,10 @@ def translateMenus():
                 "slots": cfg.slots
             }
             items[iden]['slots'][progress_slot]['progressBarItem'] = {}
-            items[iden]['slots'][progress_slot]['progressBarItem']['name'] = '&a'
             items[iden]['slots'][progress_slot]['progressBarItem']['material'] = progress_item
             dump(f1, items)
+            c += 1
+            loadingPrint(f'{Color.gold}Generating{Color.green} meuns.yml {Color.gold}{c} {Color.gray}/ {Color.green}{ld}')
         cfg = config.menus.generators
         progress_slot = cfg.progress_slot
         for menu in menus['generators']:
@@ -1198,9 +1253,10 @@ def translateMenus():
                 "slots": cfg.slots
             }
             items[iden]['slots'][progress_slot]['progressBarItem'] = {}
-            items[iden]['slots'][progress_slot]['progressBarItem']['name'] = '&a'
             items[iden]['slots'][progress_slot]['progressBarItem']['material'] = progress_item
             dump(f1, items)
+            c += 1
+            loadingPrint(f'{Color.gold}Generating{Color.green} meuns.yml {Color.gold}{c} {Color.gray}/ {Color.green}{ld}')
         cfg = config.menus.material_generators
         for menu in menus['material-generators']:
             items = {}
@@ -1211,7 +1267,9 @@ def translateMenus():
                 "slots": cfg.slots
             }
             dump(f1, items)
-    loadingPrint(f'{Color.cyan}meuns.yml √', True)
+            c += 1
+            loadingPrint(f'{Color.gold}Generating{Color.green} meuns.yml {Color.gold}{c} {Color.gray}/ {Color.green}{ld}')
+    loadingPrint(f'{Color.green}meuns.yml √', True)
 
 
 def createFile(file_name, text=''):
@@ -1224,7 +1282,7 @@ def createFile(file_name, text=''):
 
 
 menus = {'machines': [], 'generators': [], 'material-generators': []}
-item_type = {
+itemType = {
     'VANILLA': 'mc',
     'SLIMEFUN': 'slimefun',
     'NONE': 'none',
@@ -1318,7 +1376,7 @@ def main():
                     funciton()
                 else:
                     createFile(create_args)
-            translateMenus()
+            generateMenus()
             print(f'{Color.cyan}\n作为作者，我并不能保证转换出来的文本一定能够使用，因为结果会受到各种因素的影响')
             print(f'{Color.cyan}包括但不限于，原配置错误，规则不一致等。')
             print(f"{Color.green}Done! {time()-start}")
@@ -1327,8 +1385,9 @@ def main():
     finally:
         error(f'\n{Color.red}如遇无法转换，可能是配置不完整，如确认配置文件无误请提issue！')
         error(f'{Color.red}记得修改 info.yml 以避免出现附属重名')
-        input(f"{Color.cyan}Press Enter to exit...{Color.red}")
+        input(f"{Color.cyan}按任意键退出...{Color.red}")
 
 
 if __name__ == '__main__':
     main()
+    print(f'{Color.reset}')
