@@ -4,6 +4,8 @@
 
 2. 适当调整了输出内容的颜色
 
+3. exe打赢复活赛了
+
 # 1.4-SNAPSHOT
 
 1. code style fix
