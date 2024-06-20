@@ -1,3 +1,9 @@
+# 1.5-SNAPSHOT
+
+1. 修复mob_drops.yml未正常生成的bug
+
+2. 增加 .gitignore
+
 # 1.4-REALEASE
 
 1. code style fix

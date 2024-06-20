@@ -6,7 +6,7 @@ from shutil import copy as copyFile
 from sys import stdout
 from time import time
 
-VERSION = "1.4-REALEASE"
+VERSION = "1.5-SNAPSHOT"
 
 
 class Color:
@@ -747,7 +747,6 @@ def translateMobDrops():
             c = 0
             ld = len(d)
             loadingPrint(f'{Color.gold}Translating{Color.green} mob-drops.yml {Color.gold}{c} {Color.gray}/ {Color.green}{ld}')
-            d = getYamlContext(f2)
             for key in d:
                 need_versioned = False
                 items = {}

@@ -1,0 +1,12 @@
+/bin/
+/build/
+/dist/
+/.settings/
+/target/
+/.idea/
+/.vscode/
+*.iml
+*.spec
+.project
+.classpath
+.DS_Store
