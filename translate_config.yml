@@ -17,11 +17,14 @@ groupMode: none
 # namespace:  item_group: rykenslimecustomizer:example
 # none:       item_group: example
 
-# 设置所有保存物品的版本号
+# 设置输出的所有保存物品的版本号
 setAllSaveditems_v: none
 # none: 不做修改
 # 数字: 改为对应数字
 # 示例: setAllSaveditems_v: 2975
+
+# 是否启用自动创建版本化物品
+enableCreateVersionedObject: false
 
 menus:
   sections:
@@ -49,20 +52,29 @@ menus:
     #   lore:
     #     - 第1行
     #     - 第114514行
-    #   progressbar: true
-    #   progressBarItem:
-    #     name: '&a'
-    #     material_type: mc
-    #     material: OAK_PLANKS
     # b: this_is_a_mc_item
     # c:
     #   material_type: skull_hash
     #   material: this_is_skull_hash
+    n:  # 占位符
+      material_type: none
 
   # 机器菜单
   machines:
     title: "%name%"  # %name% 自动转为机器名称
-    slots:
+    background-slots: # 非 io 都会被读取
+      - "BBBBBBBBB"
+      - "IIIIBOOOO"
+      - "IiiIPOooO"
+      - "IIIIBOOOO"
+      - "BBBBBBBBB"
+    input-slots: # 仅 i 会被读取
+      - "BBBBBBBBB"
+      - "IIIIBOOOO"
+      - "IiiIPOooO"
+      - "IIIIBOOOO"
+      - "BBBBBBBBB"
+    output-slots: # 仅 o 会被读取
       - "BBBBBBBBB"
       - "IIIIBOOOO"
       - "IiiIPOooO"
@@ -71,7 +83,19 @@ menus:
   # 发电机菜单
   generators:
     title: "%name%"  # %name% 自动转为发电机名称
-    slots:
+    background-slots: # 非 io 都会被读取
+      - "BBBBBBBBB"
+      - "IIIIBOOOO"
+      - "IiiIPOooO"
+      - "IIIIBOOOO"
+      - "BBBBBBBBB"
+    input-slots: # 仅 i 会被读取
+      - "BBBBBBBBB"
+      - "IIIIBOOOO"
+      - "IiiIPOooO"
+      - "IIIIBOOOO"
+      - "BBBBBBBBB"
+    output-slots: # 仅 o 会被读取
       - "BBBBBBBBB"
       - "IIIIBOOOO"
       - "IiiIPOooO"
@@ -80,10 +104,13 @@ menus:
   # 材料生成器菜单
   material-generators:
     title: "%name%"  # %name% 自动转为材料生成器名称
-    slots:
-      - "POooooooO"
+    background-slots: # 非 io 都会被读取
+      - "Poooooooo"
+    output-slots: # 仅 o 会被读取
+      - "Poooooooo"
+
 lores:
-  # 是否完全复制 SlimeCutomizer 的格式
+  # 是否完全复制 SlimeCutomizer 的 lore 的格式
   full-copy-slimecustomizer: true
 additions: # 附加参数
   categories: {} # 分类
@@ -136,7 +163,7 @@ info:
   - Slimefun
   #- GuizhanLibPlugin
   # 附属版本
-  version: 1.0-SNAPSHOT
+  version: 1.0 SNAPSHOT
   # 附属介绍
   description: No description
   # 附属作者
