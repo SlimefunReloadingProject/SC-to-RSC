@@ -1,8 +1,7 @@
-# 不要删除已有的参数的名字！
+# The folder to output
+outputFolder: "out"
 
-# 转换后输出到哪个文件夹
-outputFolder: "translated"
-
+# The handling method for colors
 colorMode: cmi
 # vanilla: &#RRGGBB
 # vanilla2: &x&R&R&G&G&B&B
@@ -10,121 +9,121 @@ colorMode: cmi
 # minimessage: <#RRGGBB>
 # minedown: &#RRGGBB&
 
-# 物品组处理方式
+# The handling method for item groups
 groupMode: none
-# 示例:       item_group: example
+# Example:    item_group: example
 # prefix:     item_group: rsc_example
 # namespace:  item_group: rykenslimecustomizer:example
 # none:       item_group: example
 
-# 设置输出的所有保存物品的版本号
+# Change the version of all the saveditems
 setAllSaveditems_v: none
-# none: 不做修改
-# 数字: 改为对应数字
-# 示例: setAllSaveditems_v: 2975
+# none: Not to change
+# Number: Change the version to the number
+# Example: setAllSaveditems_v: 2975
 
-# 是否启用自动创建版本化物品
+# Auto create versioned object (Unsafe)
 enableCreateVersionedObject: false
 
 menus:
   sections:
-    #########################################
-    # -------------预设参数-------------
-    # 已有参数的名字不可修改！
-    B: gray_stained_glass_pane # 背景
-    I: blue_stained_glass_pane # 输入槽背景
-    O: orange_stained_glass_pane  # 输出槽背景
-    N: continue  # 跳过当前槽
-    P: progress  # 进度条
-    i: input  # 输入槽位
-    o: output # 输出槽位
-    # -------------预设参数-------------
-    #########################################
+    ##########################################################
+    # -------------------Preset Parameters-------------------
+    # Don't change the following parameters
+    B: gray_stained_glass_pane # Default background
+    I: blue_stained_glass_pane # Default input background
+    O: orange_stained_glass_pane  # Default output background
+    N: continue  # Continue the slot
+    P: progress  # The progress bar slot
+    i: input  # The empty slot for input
+    o: output # The empty slot for output
+    # -------------------Preset Parameters-------------------
+    ##########################################################
 
-    # 可自定义其他的，不要与上面的重复
-    # 详见 rsc-wiki.通用物品格式
+    # Define other sections here
+    # See https://rsc.hiworldmc.com/#/format/universal-item-format
     # a:
     #   name: '&a'
     #   material_type: mc
     #   material: BEDROCK
-    #   modelId: 114514
+    #   modelId: 123456789
     #   glow: false
     #   lore:
-    #     - 第1行
-    #     - 第114514行
+    #     - The first line
+    #     - The second line
     # b: this_is_a_mc_item
     # c:
     #   material_type: skull_hash
     #   material: this_is_skull_hash
-    n:  # 占位符
+    n:  # Placeholder
       material_type: none
 
-  # 机器菜单
+  # Machines' menu
   machines:
-    title: "%name%"  # %name% 自动转为机器名称
-    background-slots: # 非 io 都会被读取
+    title: "%name%"  # %name% will be replaced by the machine's name
+    background-slots: # Except for 'i' and 'o', all slots will be read
       - "BBBBBBBBB"
       - "IIIIBOOOO"
       - "IiiIPOooO"
       - "IIIIBOOOO"
       - "BBBBBBBBB"
-    input-slots: # 仅 i 会被读取
+    input-slots: # Only i will be read
       - "BBBBBBBBB"
       - "IIIIBOOOO"
       - "IiiIPOooO"
       - "IIIIBOOOO"
       - "BBBBBBBBB"
-    output-slots: # 仅 o 会被读取
+    output-slots: # Only o will be read
       - "BBBBBBBBB"
       - "IIIIBOOOO"
       - "IiiIPOooO"
       - "IIIIBOOOO"
       - "BBBBBBBBB"
-  # 发电机菜单
+  # Generators' menu
   generators:
-    title: "%name%"  # %name% 自动转为发电机名称
-    background-slots: # 非 io 都会被读取
+    title: "%name%"  # %name% will be replaced by the generator's name
+    background-slots: # Except for 'i' and 'o', all slots will be read
       - "BBBBBBBBB"
       - "IIIIBOOOO"
       - "IiiIPOooO"
       - "IIIIBOOOO"
       - "BBBBBBBBB"
-    input-slots: # 仅 i 会被读取
+    input-slots: # Only i will be read
       - "BBBBBBBBB"
       - "IIIIBOOOO"
       - "IiiIPOooO"
       - "IIIIBOOOO"
       - "BBBBBBBBB"
-    output-slots: # 仅 o 会被读取
+    output-slots: # Only o will be read
       - "BBBBBBBBB"
       - "IIIIBOOOO"
       - "IiiIPOooO"
       - "IIIIBOOOO"
       - "BBBBBBBBB"
-  # 材料生成器菜单
+  # Material generators' menu
   material-generators:
-    title: "%name%"  # %name% 自动转为材料生成器名称
-    background-slots: # 非 io 都会被读取
+    title: "%name%"  # %name% will be replaced by the material generator's name
+    background-slots: # Except for 'i' and 'o', all slots will be read
       - "Poooooooo"
-    output-slots: # 仅 o 会被读取
+    output-slots: # Only o will be read
       - "Poooooooo"
 
 lores:
-  # 是否完全复制 SlimeCutomizer 的 lore 的格式
+  # Full copy SlimeCustomizer lores
   full-copy-slimecustomizer: true
-additions: # 附加参数
-  categories: {} # 分类
+additions: # Addition config
+  categories: {} # Categories
   #categories:
-    #group1: # 分组1
-    #  items: # 适用物品，不存在会跳过
+    #group1: # Group1
+    #  items: # Which item to select to add config
     #  - '__example_item'
-    #  - '__all__' # 全部内容，不建议使用 
-    #  config: # 配置内容
+    #  - '__all__' # All the items
+    #  config: # Content of the config
     #    register:
     #      conditions:
     #      - "version >= 1.16"
-    #groups2: {} # 分组2，自定名字
-  mob_drops: {} # 生物掉落。同上格式
+    #groups2: {} # Group2, Name it by yourself
+  mob_drops: {} # Mob drops, similar to categories
   geo_resources: {}
   items: {}
   capacitors: {}
@@ -150,24 +149,27 @@ additions: # 附加参数
   researches: {}
 
 info:
-  # 是否使用此设置（false时自动读取sc-addon.yml）
+  # Enable or disable the addon (When false, it will read sc-addon.yml)
   enable: false
-  # 附属在RSC内的附属id
+  # The id of the addon in RykenSlimeCustomizer
   id: RSC_SlimefunExpansion
-  # 附属名字
+  # The name of the addon
   name: Unknown addon
-  # 后置插件
+  # The addon depends which based on RykenSlimeCustomizer
   depends: []
-  # 硬前置插件（通常不会自动加载）
+  # The plugin depends which based on Slimefun (Usually won't auto load)
   pluginDepends:
   - Slimefun
   #- GuizhanLibPlugin
-  # 附属版本
+  # The version of the addon
   version: 1.0 SNAPSHOT
-  # 附属介绍
+  # The description of the addon
   description: No description
-  # 附属作者
+  # The authors of the addon
   authors:
   - ''
-  # 附属仓库
+  # The github repository of the addon
   repo: ''
+
+# Don't change this
+config-version: 1.6-SNAPSHOT

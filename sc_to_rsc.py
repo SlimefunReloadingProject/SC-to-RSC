@@ -6,7 +6,7 @@ from shutil import copy as copyFile
 from sys import stdout
 from time import time
 
-VERSION = "1.5-RELEASE"
+VERSION = "1.6-SNAPSHOT"
 
 
 class Color:
@@ -53,10 +53,10 @@ def getYamlContext(file):
             return {}
         return result
     except FileNotFoundError:
-        error(f'文件 {file} 未找到')
+        error(f'File {file} not found.')
         return {}
     except PermissionError:
-        error(f'无权限打开文件 {file}')
+        error(f'Permission denied: {file}')
         return {}
 
 
@@ -571,14 +571,11 @@ def readConfig():
             'full-copy-slimecustomizer'
         )
         if config.lores.full_copy_slimecustomizer:
-            print(f'''
-                {Color.cyan} 您已开启完全复制 SlimeCustomizer.
-                在修改您的配置的时候请注意 lore 是否需要修改！
-            ''')
+            print(f'''{Color.cyan} You have already enabled full-copy-slimecustomizer.''')
         hexColorForm = {
             "vanilla": "&#{}{}{}{}{}{}",
             "vanilla2": "&x&{}&{}&{}&{}&{}&{}",
-            "cmi": "#{}{}{}{}{}{}",  # 外大括号另外设置，不在这里
+            "cmi": "#{}{}{}{}{}{}",
             "minimessage": "<#{}{}{}{}{}{}>",
             "minedown": "&#{}{}{}{}{}{}&"
         }[config.colorMode]
@@ -607,6 +604,7 @@ def readConfig():
         config.info.name = info['name']
         config.info.depends = info['depends']
         config.info.pluginDepends = info['pluginDepends']
+        config.info.scriptListener = info['scriptListener']
         config.info.version = info['version']
         config.info.description = info['description']
         config.info.authors = info['authors']
@@ -658,7 +656,8 @@ def generateBase():
         "armors.yml",
         "recipe_types.yml",
         "foods.yml",
-        "supers.yml"
+        "supers.yml",
+        "template_machines.yml"
     )
     for file_name in files:
         with open(getPath(file_name), 'w', encoding='utf-8') as f:
@@ -677,6 +676,7 @@ def translateInfo():
                     'name': config.info.name,
                     'depends': config.info.depends,
                     'pluginDepends': config.info.pluginDepends,
+                    'scriptListener': config.info.scriptListener,
                     'version': config.info.version,
                     'description': config.info.description,
                     'authors': config.info.authors,
@@ -688,6 +688,7 @@ def translateInfo():
                     'name': "Unknown addon",
                     'depends': [],
                     'pluginDepends': [],
+                    'scriptListener': "",
                     'version': "1.0 SNAPSHOT",
                     'description': 'No description',
                     'authors': [""],
@@ -1332,7 +1333,7 @@ ORDER = ('id_alias', 'lateinit', 'register', 'totalTicks', 'type', 'tier', 'hidd
 CAPA_SKULL = '91361e576b493cbfdfae328661cedd1add55fab4e5eb418b92cebf6275f8bb4'
 CHARS = {'n': '__', 'm': '~~', 'k': '??', 'l': '**', 'o': '##'}
 CHARS2 = {'l': '<l>', 'n': '<u>', 'o': '<i>', 'k': '<obf>', 'm': '<st>'}
-NULL = '__SC_TO_RSC_NOT_FOUND_ARG'
+NULL = '__SC_TO_RSC_NOT_FOUND_ARGUMENT'
 BACKGROUND_READER = "background-slots"
 INPUT_READER = "input-slots"
 OUTPUT_READER = "output-slots"
@@ -1414,16 +1415,15 @@ def main():
                 else:
                     createFile(create_args)
             generateMenus()
-            print(f'{Color.cyan}\n作为作者，我并不能保证转换出来的文本一定能够使用，因为结果会受到各种因素的影响')
-            print(f'{Color.cyan}包括但不限于，原配置错误，规则不一致等。')
+            print(f'{Color.cyan}\nAs the author, I cannot guarantee that the translated text will be used, because the result will be affected by various factors.')
+            print(f'{Color.cyan}Including but not limited to, the original configuration error, inconsistency, etc.')
             print(f"{Color.green}Done! {time()-start}")
         else:
-            error('未找到配置文件 translate_config.yml. 请从github补全文件再运行本程序！')
+            error('Cannot find translate_config.yml. Please complete the file from github and run the program again!')
     finally:
-        error(f'\n{Color.red}如遇无法转换，可能是配置不完整，如确认配置文件无误请提issue！')
-        error(f'{Color.red}记得修改 info.yml 以避免出现附属重名')
-        input(f"{Color.cyan}按任意键退出...{Color.red}")
-
+        error(f'\n{Color.red}If you encounter any problems, please submit an issue on the github repository.')
+        error(f'{Color.red}Don\'t forget to change the id in info.yml before release.')
+        input(f"{Color.cyan}Press any key to exit...{Color.red}")
 
 if __name__ == '__main__':
     main()
