@@ -149,27 +149,29 @@ additions: # Addition config
   researches: {}
 
 info:
-  # Enable or disable the addon (When false, it will read sc-addon.yml)
+  # Enable or disable the following info of the addon
   enable: false
   # The id of the addon in RykenSlimeCustomizer
-  id: RSC_SlimefunExpansion
+  id: ChangeMe
   # The name of the addon
-  name: Unknown addon
+  name: ChangeMe
   # The addon depends which based on RykenSlimeCustomizer
   depends: []
-  # The plugin depends which based on Slimefun (Usually won't auto load)
+  # The plugin depends which based on Slimefun (Usually will auto load)
   pluginDepends:
   - Slimefun
   #- GuizhanLibPlugin
+  # The script listener of the addon (Not necessary to change)
+  scriptListener: ""
   # The version of the addon
-  version: 1.0 SNAPSHOT
+  version: ChangeMe
   # The description of the addon
-  description: No description
+  description: ChangeMe
   # The authors of the addon
   authors:
-  - ''
+  - SlimefunSlimeReloadingProject
   # The github repository of the addon
-  repo: ''
+  repo: ""
 
 # Don't change this
 config-version: 1.6-SNAPSHOT

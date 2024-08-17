@@ -684,15 +684,15 @@ def translateInfo():
                 }
             else:
                 items = {
-                    'id': "RSC_SlimefunExpansion",
-                    'name': "Unknown addon",
+                    'id': "ChangeMe",
+                    'name': "ChangeMe",
                     'depends': [],
                     'pluginDepends': [],
                     'scriptListener': "",
-                    'version': "1.0 SNAPSHOT",
-                    'description': 'No description',
-                    'authors': [""],
-                    'repo': ''
+                    'version': "ChangeMe",
+                    'description': "ChangeMe",
+                    'authors': ["SlimeReloadingProject"],
+                    'repo': ""
                 }
             data = getYamlContext(f2)
             depend = data.get('depend', [])
