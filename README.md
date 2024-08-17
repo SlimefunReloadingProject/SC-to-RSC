@@ -1,6 +1,7 @@
 # SC-to-RSC
 
 A simple script to convert `Slimefun` addon `SlimeCustomizer`'s configuration to `RykenSlimeCustomizer` configuration.
+
 Author: balugaq
 
 This repository is for Chinese SlimeCustomizer and Chinese RykenSlimeCustomizer only.
