@@ -732,7 +732,10 @@ def translateGroups():
                 ditem = data['category-item']
                 if ditem.startswith('SKULL'):
                     new['item']['material_type'] = dtype = 'skull_hash'
-                    new['item']['material'] = data['category-item'][5:]
+                    s = data['category-item'][5:]
+                    new['item']['material'] = s
+                    if (s.startswith("ey") or s.startswith("ew")):
+                        new['item']['material_type'] = dtype = "skull_base64"
                 else:
                     copyTo('item.material', 'category-item')
                 checkVersioned(dtype, ditem)
@@ -788,7 +791,10 @@ def translateMobDrops():
                     and data['item-type'] == 'CUSTOM'
                 ):
                     new['item']['material_type'] = 'skull_hash'
-                    new['item']['material'] = data['item-id'][5:]
+                    s = data['item-id'][5:]
+                    new['item']['material'] = s
+                    if (s.startswith("ey") or s.startswith("ew")):
+                        new['item']['material_type'] = "skull_base64"
                 else:
                     copyTo('item.material_type', 'item-type', defineType)
                     copyTo('item.material', 'item-id')
@@ -828,7 +834,10 @@ def translateGeoResources():
                 ditem = data['item-id']
                 if ditem.startswith('SKULL') and dtype == 'CUSTOM':
                     new['item']['material_type'] = 'skull_hash'
-                    new['item']['material'] = data['item-id'][5:]
+                    s = data['item-id'][5:]
+                    new['item']['material'] = s
+                    if (s.startswith("ey") or s.startswith("ew")):
+                        new['item']['material_type'] = "skull_base64"
                 else:
                     copyTo('item.material_type', 'item-type', defineType)
                     copyTo('item.material', 'item-id')
@@ -919,7 +928,10 @@ def translateItems():
                 ditem = str(data['item-id'])
                 if ditem.startswith('SKULL') and dt == 'CUSTOM':
                     new['item']['material_type'] = dt = 'skull_hash'
-                    new['item']['material'] = data['item-id'][5:]
+                    s = data['item-id'][5:]
+                    new['item']['material'] = s
+                    if (s.startswith("ey") or s.startswith("ew")):
+                        new['item']['material_type'] = dt = "skull_base64"
                 else:
                     copyTo('item.material_type', 'item-type', defineType)
                     copyTo('item.material', 'item-id')
@@ -965,7 +977,10 @@ def translateCapacitors():
                 ditem = data['block-type']
                 if ditem.startswith('SKULL'):
                     new['item']['material_type'] = dtype = 'skull_hash'
-                    new['item']['material'] = data['block-type'][5:]
+                    s = data['block-type'][5:]
+                    new['item']['material'] = s
+                    if s.startswith("ey") or s.startswith("ew"):
+                        new['item']['material_type'] = dtype = "skull_base64"
                 elif data['block-type'] in ('DEFAULT', 'default'):
                     new['item']['material_type'] = dtype = 'skull_hash'
                     new['item']['material'] = CAPA_SKULL
@@ -1023,7 +1038,10 @@ def translateMachines():
                 ditem = data['block-type']
                 if ditem.startswith('SKULL'):
                     new['item']['material_type'] = dtype = 'skull_hash'
-                    new['item']['material'] = data['block-type'][5:]
+                    s = data['block-type'][5:]
+                    new['item']['material'] = s
+                    if s.startswith("ey") or s.startswith("ew"):
+                        new['item']['material_type'] = dtype = "skull_base64"
                 else:
                     copyTo('item.material', 'block-type')
                 checkVersioned(dtype, ditem)
@@ -1080,7 +1098,10 @@ def translateGenerators():
                 ditem = data['block-type']
                 if ditem.startswith('SKULL'):
                     new['item']['material_type'] = dtype = 'skull_hash'
-                    new['item']['material'] = data['block-type'][5:]
+                    s = data['block-type'][5:]
+                    new['item']['material'] = s
+                    if s.startswith("ey") or s.startswith("ew"):
+                        new['item']['material_type'] = dtype = "skull_base64"
                 else:
                     copyTo('item.material', 'block-type')
                 checkVersioned(dtype, ditem)
@@ -1122,7 +1143,10 @@ def translateSolarGenerators():
                 ditem = data['block-type']
                 if ditem.startswith('SKULL'):
                     new['item']['material_type'] = dtype = 'skull_hash'
-                    new['item']['material'] = data['block-type'][5:]
+                    s = data['block-type'][5:]
+                    new['item']['material'] = s
+                    if s.startswith("ey") or s.startswith("ew"):
+                        new['item']['material_type'] = dtype = "skull_base64"
                 else:
                     copyTo('item.material', 'block-type')
                 checkVersioned(dtype, ditem)
@@ -1188,7 +1212,10 @@ def translateMaterialGenerators():
                 ditem = data['block-type']
                 if ditem.startswith('SKULL'):
                     new['item']['material_type'] = dtype = 'skull_hash'
-                    new['item']['material'] = data['block-type'][5:]
+                    s = data['block-type'][5:]
+                    new['item']['material'] = s
+                    if s.startswith("ey") or s.startswith("ew"):
+                        new['item']['material_type'] = dtype = "skull_base64"
                 else:
                     copyTo('item.material', 'block-type')
                 checkVersioned(dtype, ditem)
